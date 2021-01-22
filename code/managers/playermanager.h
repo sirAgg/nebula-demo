@@ -12,9 +12,19 @@
 #include "util/stringatom.h"
 #include "renderutil/freecamerautil.h"
 #include "game/entity.h"
+#include "Math/vector.h"
+#include "../topdowncamera.h"
+#include "properties/input.h"
 
 namespace Demo
 {
+
+struct TDC
+{
+    float height;
+    float pitch;
+    float yaw;
+};
 
 class PlayerManager
 {
@@ -41,7 +51,9 @@ private:
 
 	Game::Entity playerEntity;
 
-	RenderUtil::FreeCameraUtil freeCamUtil;
+	//RenderUtil::FreeCameraUtil freeCamUtil;
+    Demo::TopdownCamera tdc;
+    TopDownCamera camera;
 };
 
 } // namespace Demo

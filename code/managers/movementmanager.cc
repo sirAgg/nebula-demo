@@ -25,6 +25,7 @@ __ImplementSingleton(MovementManager)
 Game::ManagerAPI
 MovementManager::Create()
 {
+
     n_assert(!MovementManager::HasInstance());
     Singleton = n_new(MovementManager);
 
@@ -44,6 +45,28 @@ MovementManager::Create()
     processorInfo.name = "MovementManager"_atm;
     processorInfo.OnBeginFrame = [](Game::Dataset data)
     {
+
+    
+
+        Math::point target_point;
+        {
+            Game::FilterCreateInfo info;
+            info.inclusive[0] = Game::GetPropertyId("WorldTransform");
+            info.access[0]    = Game::AccessMode::READ;
+            info.inclusive[0] = Game::GetPropertyId("Marker");
+            info.access[0]    = Game::AccessMode::READ;
+            info.numInclusive = 2;
+
+            Game::Filter filter = Game::CreateFilter(info);
+
+            Game::Dataset data = Game::Query(filter);
+
+            auto v = data.views[0];
+            Math::mat4* const mat = (Math::mat4*)v.buffers[0];
+            target_point = mat[0].position;
+        }
+
+
         Game::TimeSource const* const time = Game::TimeManager::GetTimeSource(TIMESOURCE_GAMEPLAY);
         for (int v = 0; v < data.numViews; v++)
         {
@@ -61,7 +84,12 @@ MovementManager::Create()
                 float const z = move.wanderJitter * (Util::RandomFloatNTP() * move.wanderRadius);
                 Math::vec3 const wanderCircle = Math::vec3(x, 0, z);
                 move.direction = Math::normalize((move.direction + Math::normalize((wanderCircle + (Math::normalize(move.direction * move.wanderDistance))))));
-                t.position += (move.direction * move.speed * time->frameTime).vec;
+
+                Math::vec4 new_pos = t.position + (move.direction * move.speed * time->frameTime).vec;
+                if (length3(new_pos) < move.maximumDistance)
+                {
+                    t.position = new_pos;
+                }
             }
         }
     };

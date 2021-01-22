@@ -10,6 +10,12 @@
             "projectionMode": "PERSPECTIVE",
             "zNear": 0.01,
             "zFar": 1000.0
+        },
+        "TopdownCamera":
+        {
+            "height" : 20.0,
+            "pitch"  : 1.0,
+            "yaw"    : 0.0
         }
     }
 }

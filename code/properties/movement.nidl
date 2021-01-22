@@ -15,7 +15,7 @@
             "direction": "vec3",
             "speed": {
                 "_type_": "float",
-                "_default_": 1.0
+                "_default_": 4.0
             },
             "wanderRadius": { // Radius of constraining circle
                 "_type_": "float",
@@ -28,6 +28,11 @@
             "wanderJitter": { // maximum amount of random displacement that can be added each second.
                 "_type_": "float",
                 "_default_": 0.80
+            },
+            "maximumDistance": 
+            {
+                "_type_": "float",
+                "_default_": 20.0
             }
         }
     }

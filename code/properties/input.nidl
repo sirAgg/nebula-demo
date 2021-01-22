@@ -8,6 +8,11 @@
             },
             "forward": "char",
             "strafe": "char"
+        },
+        "TopdownCamera": {
+            "height": "float",
+            "pitch" : "float",
+            "yaw"   : "float"
         }
     }
 }

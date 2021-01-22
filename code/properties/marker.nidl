@@ -1,0 +1,8 @@
+{
+    "namespace" : "Demo",
+    "properties" : {
+        "Marker" : {
+            "position" : "vec3"
+        }
+    }
+}

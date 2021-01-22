@@ -15,6 +15,8 @@ fips_dir(.)
         demogamefeatureunit.cc
         gamestatemanager.h
         gamestatemanager.cc
+        topdowncamera.cc
+        topdowncamera.h
     )
 
     fips_dir(managers)

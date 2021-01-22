@@ -1,0 +1,6 @@
+{
+    "blueprint": "MarkerEntity",
+    "properties": {
+        "ModelResource": "mdl:dev/knob_plastic_scuffed.n3"
+    }
+}

@@ -4,7 +4,8 @@
             "desc": "First person player",
             "properties": [
                 "WorldTransform",
-                "Camera"
+                "Camera",
+                "TopdownCamera"
             ]
         },
         "StaticEnvironment": {
@@ -38,6 +39,13 @@
                 "WorldTransform",
                 "ModelResource",
                 "Movement"
+            ]
+        },
+        "MarkerEntity" : {
+            "desc": "A marker which the moving entities will follow",
+            "properties": [
+                "WorldTransform",
+                "ModelResource"
             ]
         }
     }
