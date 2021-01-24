@@ -57,31 +57,33 @@ ProcessPlayerInput()
     Ptr<Input::Keyboard> const& keyboard = Input::InputServer::Instance()->GetDefaultKeyboard();
     Ptr<Input::Mouse> const& mouse = Input::InputServer::Instance()->GetDefaultMouse();
 
-    //Game::FilterSet filter(
-    //    {
-    //        Game::GetPropertyId("PlayerInput"_atm)
-    //    },
-    //    {
-    //        // no excludes
-    //    }
-    //    );
+    Game::FilterCreateInfo =  {}
 
-    //Game::Dataset data = Game::Query(filter);
+    Game::FilterSet filter(
+        {
+            Game::GetPropertyId("PlayerInput"_atm)
+        },
+        {
+            // no excludes
+        }
+        );
 
-    //for (auto tbl : data.tables)
-    //{
-    //    Demo::PlayerInput* pInputs = (Demo::PlayerInput*)tbl.buffers[0];
+    Game::Dataset data = Game::Query(filter);
 
-    //    for (int i = 0; i < tbl.numInstances; i++)
-    //    {
-    //        auto& playerInput = pInputs[i];
-    //        if (playerInput.hasFocus)
-    //        {
-    //            playerInput.forward = (char)keyboard->KeyPressed(Input::Key::Code::W) - (char)keyboard->KeyPressed(Input::Key::Code::S);
-    //            playerInput.strafe = (char)keyboard->KeyPressed(Input::Key::Code::Right) - (char)keyboard->KeyPressed(Input::Key::Code::Left);
-    //        }
-    //    }
-    //}
+    for (auto tbl : data.tables)
+    {
+        Demo::PlayerInput* pInputs = (Demo::PlayerInput*)tbl.buffers[0];
+
+        for (int i = 0; i < tbl.numInstances; i++)
+        {
+            auto& playerInput = pInputs[i];
+            if (playerInput.hasFocus)
+            {
+                playerInput.forward = (char)keyboard->KeyPressed(Input::Key::Code::W) - (char)keyboard->KeyPressed(Input::Key::Code::S);
+                playerInput.strafe = (char)keyboard->KeyPressed(Input::Key::Code::Right) - (char)keyboard->KeyPressed(Input::Key::Code::Left);
+            }
+        }
+    }
 }
 
 //------------------------------------------------------------------------------

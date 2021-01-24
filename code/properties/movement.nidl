@@ -34,6 +34,9 @@
                 "_type_": "float",
                 "_default_": 20.0
             }
+        },
+        "Marker" : {
+            "position" : "vec3"
         }
     }
 }

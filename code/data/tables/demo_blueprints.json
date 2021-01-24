@@ -34,7 +34,7 @@
             ]
         },
         "MovingEntity": {
-            "desc": "An entity that wanders around randomly",
+            "desc": "An entity that wanders follows a marker",
             "properties": [
                 "WorldTransform",
                 "ModelResource",
@@ -45,7 +45,8 @@
             "desc": "A marker which the moving entities will follow",
             "properties": [
                 "WorldTransform",
-                "ModelResource"
+                "ModelResource",
+                "Marker"
             ]
         }
     }

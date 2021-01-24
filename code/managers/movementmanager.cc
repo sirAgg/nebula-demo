@@ -48,22 +48,25 @@ MovementManager::Create()
 
     
 
-        Math::point target_point;
+        Math::vec3 target_point;
+        bool has_target = false;
         {
             Game::FilterCreateInfo info;
-            info.inclusive[0] = Game::GetPropertyId("WorldTransform");
+            info.inclusive[0] = Game::GetPropertyId("Marker"_atm);
             info.access[0]    = Game::AccessMode::READ;
-            info.inclusive[0] = Game::GetPropertyId("Marker");
-            info.access[0]    = Game::AccessMode::READ;
-            info.numInclusive = 2;
+            info.numInclusive = 1;
 
             Game::Filter filter = Game::CreateFilter(info);
 
             Game::Dataset data = Game::Query(filter);
 
-            auto v = data.views[0];
-            Math::mat4* const mat = (Math::mat4*)v.buffers[0];
-            target_point = mat[0].position;
+            if(data.numViews > 0)
+            {
+                auto v = data.views[0];
+                Demo::Marker* const m = (Demo::Marker*)v.buffers[0];
+                target_point = m[0].position;
+                has_target = true;
+            }
         }
 
 
@@ -83,7 +86,13 @@ MovementManager::Create()
                 float const x = move.wanderJitter * (Util::RandomFloatNTP() * move.wanderRadius);
                 float const z = move.wanderJitter * (Util::RandomFloatNTP() * move.wanderRadius);
                 Math::vec3 const wanderCircle = Math::vec3(x, 0, z);
-                move.direction = Math::normalize((move.direction + Math::normalize((wanderCircle + (Math::normalize(move.direction * move.wanderDistance))))));
+                if(has_target)
+                {
+                    Math::vec3 p = {t.position.x, t.position.y, t.position.z};
+                    move.direction = Math::normalize(target_point - p);
+                }
+                else
+                    move.direction = Math::normalize((move.direction + Math::normalize((wanderCircle + (Math::normalize(move.direction * move.wanderDistance))))));
 
                 Math::vec4 new_pos = t.position + (move.direction * move.speed * time->frameTime).vec;
                 if (length3(new_pos) < move.maximumDistance)

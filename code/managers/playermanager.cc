@@ -14,6 +14,7 @@
 #include "input/mouse.h"
 #include "renderutil/mouserayutil.h"
 #include "game/api.h"
+#include "properties/movement.h"
 
 namespace Demo
 {
@@ -119,7 +120,9 @@ PlayerManager::OnActivate()
             info.templateId = Game::GetTemplateId("MarkerEntity/markerentity"_atm);
             Game::Entity entity = Game::CreateEntity(info);
             Math::vec3 new_pos = p + Math::vec3{0,0.5,0};
+            Demo::Marker m = {new_pos};
             Game::SetProperty(entity, Game::GetPropertyId("WorldTransform"_atm), Math::translation(new_pos));
+            Game::SetProperty(entity, Game::GetPropertyId("Marker"_atm), m);
 
 
             num_of_boxes++;
@@ -140,34 +143,6 @@ PlayerManager::OnActivate()
         ImGui::End();
 
     });
-        
-    Game::FilterCreateInfo info;
-    info.inclusive[0] = Game::GetPropertyId("WorldTransform");
-    info.access[0]    = Game::AccessMode::READ;
-    info.inclusive[0] = Game::GetPropertyId("Marker");
-    info.access[0]    = Game::AccessMode::READ;
-    info.numInclusive = 2;
-
-    Game::Filter filter = Game::CreateFilter(info);
-
-    Game::ProcessorCreateInfo processorInfo;
-    processorInfo.async = false;
-    processorInfo.filter = filter;
-    processorInfo.name = "DrawGreenDotsManager";
-    processorInfo.OnRenderDebug = [](Game::Dataset data)
-    {
-        for (int v = 0; v < data.numViews; v++)
-        {
-            Game::Dataset::CategoryTableView const& view = data.views[v];
-            Math::mat4* const transforms = (Math::mat4*)view.buffers[0];
-
-            for(IndexT i = 0; i < view.numInstances; i++)
-            {
-                Math::vec4 p = transforms[i].position;
-                Im3d::Im3dContext::DrawPoint({p.x, p.y, p.z}, 10.0f, {1,0,0,1} );
-            }
-        }
-    };
 }
 
 //------------------------------------------------------------------------------
