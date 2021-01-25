@@ -16,7 +16,7 @@
             "direction": "vec3",
             "speed": {
                 "_type_": "float",
-                "_default_": 40.0
+                "_default_": 4.0
             },
             "wanderRadius": { // Radius of constraining circle
                 "_type_": "float",
