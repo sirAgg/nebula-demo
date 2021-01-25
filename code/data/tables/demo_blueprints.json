@@ -5,6 +5,7 @@
             "properties": [
                 "WorldTransform",
                 "Camera",
+                "PlayerInput",
                 "TopdownCamera"
             ]
         },

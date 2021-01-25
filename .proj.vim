@@ -5,7 +5,7 @@ nnoremap <S-f3> :wa<cr>:!ninja -C build\ -t clean<cr>:silent! cexpr system(".\fi
 nnoremap <f4> :call RunProgram(".\\fips run nebula-demo")<cr>
 
 nnoremap <f8> :!explorer .<cr><cr>
-nnoremap <f7> :!devenv .<cr><cr>
+nnoremap <f7> :!.\fips open<cr><cr>
 
 nnoremap <leader>m :call ToggleHeader()<cr>
 nnoremap <leader>e :Files ..<cr>

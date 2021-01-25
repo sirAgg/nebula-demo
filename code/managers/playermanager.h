@@ -19,13 +19,6 @@
 namespace Demo
 {
 
-struct TDC
-{
-    float height;
-    float pitch;
-    float yaw;
-};
-
 class PlayerManager
 {
 	__DeclareSingleton(PlayerManager);
@@ -51,9 +44,8 @@ private:
 
 	Game::Entity playerEntity;
 
-	//RenderUtil::FreeCameraUtil freeCamUtil;
+    // Mainly used for changing camera rotation and height, probably not nessesary in release
     Demo::TopdownCamera tdc;
-    TopDownCamera camera;
 };
 
 } // namespace Demo

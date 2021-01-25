@@ -9,6 +9,8 @@
 #include "input/keyboard.h"
 #include "basegamefeature/managers/entitymanager.h"
 #include "properties/input.h"
+#include "imgui.h"
+#include "graphicsfeature/graphicsfeatureunit.h"
 
 namespace Demo
 {
@@ -57,30 +59,35 @@ ProcessPlayerInput()
     Ptr<Input::Keyboard> const& keyboard = Input::InputServer::Instance()->GetDefaultKeyboard();
     Ptr<Input::Mouse> const& mouse = Input::InputServer::Instance()->GetDefaultMouse();
 
-    Game::FilterCreateInfo =  {}
+    Game::FilterCreateInfo info;
+    info.inclusive[0] = Game::GetPropertyId("PlayerInput"_atm);
+    info.access[0]    = Game::AccessMode::WRITE;
+    info.numInclusive = 1;
 
-    Game::FilterSet filter(
-        {
-            Game::GetPropertyId("PlayerInput"_atm)
-        },
-        {
-            // no excludes
-        }
-        );
+    Game::Filter filter = Game::CreateFilter(info);
 
     Game::Dataset data = Game::Query(filter);
-
-    for (auto tbl : data.tables)
+    for(int v = 0; v < data.numViews; v++)
     {
-        Demo::PlayerInput* pInputs = (Demo::PlayerInput*)tbl.buffers[0];
+        Game::Dataset::CategoryTableView const& view = data.views[v];
+        Demo::PlayerInput* const player_inputs = (Demo::PlayerInput*)view.buffers[0];
 
-        for (int i = 0; i < tbl.numInstances; i++)
+        for(int i = 0; i < view.numInstances; i++)
         {
-            auto& playerInput = pInputs[i];
-            if (playerInput.hasFocus)
+            Demo::PlayerInput& input = player_inputs[i];
+
+            auto& io = ImGui::GetIO();
+            if(!io.WantCaptureMouse)
             {
-                playerInput.forward = (char)keyboard->KeyPressed(Input::Key::Code::W) - (char)keyboard->KeyPressed(Input::Key::Code::S);
-                playerInput.strafe = (char)keyboard->KeyPressed(Input::Key::Code::Right) - (char)keyboard->KeyPressed(Input::Key::Code::Left);
+                input.forward = (char)io.KeysDown[Input::Key::W] - (char)io.KeysDown[Input::Key::S];
+                input.strafe  = (char)io.KeysDown[Input::Key::D] - (char)io.KeysDown[Input::Key::A];
+                input.spawn_marker = mouse->ButtonPressed(Input::MouseButton::Code::LeftButton);
+            }
+            else
+            {
+                input.forward = 0;
+                input.strafe  = 0;
+                input.spawn_marker = false;
             }
         }
     }

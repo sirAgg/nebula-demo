@@ -1,7 +1,8 @@
 {
     "namespace": "Demo",
     "includes": [
-        "math/vec3.h"
+        "math/vec3.h",
+        "game/entity.h"
     ],
     "enums": {
         "Foo": {
@@ -15,7 +16,7 @@
             "direction": "vec3",
             "speed": {
                 "_type_": "float",
-                "_default_": 4.0
+                "_default_": 40.0
             },
             "wanderRadius": { // Radius of constraining circle
                 "_type_": "float",
@@ -33,7 +34,8 @@
             {
                 "_type_": "float",
                 "_default_": 20.0
-            }
+            },
+            "target_entity": "entity"
         },
         "Marker" : {
             "position" : "vec3"

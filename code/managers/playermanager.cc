@@ -15,6 +15,7 @@
 #include "renderutil/mouserayutil.h"
 #include "game/api.h"
 #include "properties/movement.h"
+#include "properties/input.h"
 
 namespace Demo
 {
@@ -78,70 +79,13 @@ PlayerManager::OnActivate()
     Game::SetProperty<GraphicsFeature::Camera>(Singleton->playerEntity, Game::GetPropertyId("Camera"_atm), camera);
 
 
-    Singleton->camera.Setup(0, 0, 0);
-
     GraphicsFeature::GraphicsFeatureUnit::Instance()->AddRenderUICallback([]()
     {
-
-        static Math::line ray;
-        static Math::vec3 p;
-        static int num_of_boxes = 0;
-        if (Input::InputServer::Instance()->GetDefaultMouse()->ButtonPressed(Input::MouseButton::Code::RightButton))
-        {
-            Math::vec2 mouse_pos = Input::InputServer::Instance()->GetDefaultMouse()->GetScreenPosition();
-            //IO::Console::Instance()->Print("mouse_pos: %f, %f", mouse_pos.x, mouse_pos.y);
-        
-            GraphicsFeature::Camera camera = Game::GetProperty<GraphicsFeature::Camera>(Singleton->playerEntity, Game::GetPropertyId("Camera"_atm));
-            Math::mat4 world_transform = Game::GetProperty<Math::mat4>(Singleton->playerEntity, Game::GetPropertyId("WorldTransform"_atm));
-            const Math::mat4 view = world_transform * camera.localTransform;    
-            const Math::mat4 proj = GraphicsFeature::CameraManager::GetProjection(camera.viewHandle); // viewHandle might be invalid
-            ray = RenderUtil::MouseRayUtil::ComputeWorldMouseRay(
-                mouse_pos,
-                1000.0f,
-                Math::inverse(view),
-                Math::inverse(proj),
-                0.1f
-            );
-
-
-            Math::point p1 = ray.pointat(-1);
-            Math::point p2 = ray.pointat(10);
-
-            Math::plane pl = Math::plane({0,0,0}, {0,1,0});
-            Math::point intersect_point;
-            Math::intersectline(pl, p1, p2, intersect_point);
-            
-            intersect_point.y += 0.1f;
-            p = Math::vec3{intersect_point.x, intersect_point.y, intersect_point.z};
-            
-
-            Game::EntityCreateInfo info;
-            info.immediate = true;
-            info.templateId = Game::GetTemplateId("MarkerEntity/markerentity"_atm);
-            Game::Entity entity = Game::CreateEntity(info);
-            Math::vec3 new_pos = p + Math::vec3{0,0.5,0};
-            Demo::Marker m = {new_pos};
-            Game::SetProperty(entity, Game::GetPropertyId("WorldTransform"_atm), Math::translation(new_pos));
-            Game::SetProperty(entity, Game::GetPropertyId("Marker"_atm), m);
-
-
-            num_of_boxes++;
-            IO::Console::Instance()->Print("boxes: %d", num_of_boxes);
-        }
-
-
-
-
-
-        Im3d::Im3dContext::DrawLine(ray, 2.0f, { 1.0f, 0.3f, 0.0f, 1.0f });
-        Im3d::Im3dContext::DrawPoint(p, 20.0, {0,0,1,1});
-
         ImGui::Begin("Camera config");
         ImGui::SliderFloat("Camera height", &Singleton->tdc.height, 0.0001f, 100.0f);
         ImGui::SliderFloat("Camera pitch", &Singleton->tdc.pitch, 0.0001f, N_PI_HALF);
         ImGui::SliderFloat("Camera yaw", &Singleton->tdc.yaw, 0.0f, 2*N_PI_DOUBLE);
         ImGui::End();
-
     });
 }
 
@@ -151,19 +95,65 @@ PlayerManager::OnActivate()
 void
 PlayerManager::OnBeginFrame()
 {
-    auto& io = ImGui::GetIO();
-    if (!ImGui::GetIO().WantCaptureMouse)
+    Demo::PlayerInput input = Game::GetProperty<Demo::PlayerInput>(Singleton->playerEntity, Game::GetPropertyId("PlayerInput"_atm));
+
+    if (input.spawn_marker)
     {
-        Singleton->camera.SetForwardKey(io.KeysDown[Input::Key::W]);
-        Singleton->camera.SetBackwardKey(io.KeysDown[Input::Key::S]);
-        Singleton->camera.SetLeftKey(io.KeysDown[Input::Key::A]);
-        Singleton->camera.SetRightKey(io.KeysDown[Input::Key::D]);
-        Singleton->camera.Update();
+        Math::vec2 mouse_pos = Input::InputServer::Instance()->GetDefaultMouse()->GetScreenPosition();
+        GraphicsFeature::Camera camera = Game::GetProperty<GraphicsFeature::Camera>(Singleton->playerEntity, Game::GetPropertyId("Camera"_atm));
+        Math::mat4 world_transform = Game::GetProperty<Math::mat4>(Singleton->playerEntity, Game::GetPropertyId("WorldTransform"_atm));
+        const Math::mat4 view = world_transform * camera.localTransform;    
+        const Math::mat4 proj = GraphicsFeature::CameraManager::GetProjection(camera.viewHandle); // viewHandle might be invalid
+        Math::line ray = RenderUtil::MouseRayUtil::ComputeWorldMouseRay(
+            mouse_pos,
+            1000.0f,
+            Math::inverse(view),
+            Math::inverse(proj),
+            0.1f
+        );
+
+        Math::point p1 = ray.pointat(-1);
+        Math::point p2 = ray.pointat(0);
+
+        Math::plane pl = Math::plane({0,0,0}, {0,1,0}); // xz-plane
+        Math::point intersect_point;
+        Math::intersectline(pl, p1, p2, intersect_point);
+        
+        intersect_point.y += 0.1f;
+        Math::vec3 p = Math::vec3{intersect_point.x, intersect_point.y, intersect_point.z};
+        
+
+        Game::EntityCreateInfo info;
+        info.immediate = true;
+        info.templateId = Game::GetTemplateId("MarkerEntity/markerentity"_atm);
+        Game::Entity entity = Game::CreateEntity(info);
+        Math::vec3 new_pos = p + Math::vec3{0,0.5,0};
+        Demo::Marker m = {new_pos};
+        Game::SetProperty(entity, Game::GetPropertyId("WorldTransform"_atm), Math::translation(new_pos));
+        Game::SetProperty(entity, Game::GetPropertyId("Marker"_atm), m);
     }
 
-    //Math::mat4 worldTransform = Game::GetProperty(Singleton->playerEntity, Game::GetPropertyId("WorldTransform"_atm));
-    Game::SetProperty<Math::mat4>(Singleton->playerEntity, Game::GetPropertyId("WorldTransform"_atm), Singleton->camera.GetTransform());
-    Math::mat4 camera_local_transform = Math::rotationy(Singleton->tdc.yaw) * Math::rotationx(Singleton->tdc.pitch) * Math::translation(0,0,-Singleton->tdc.height/Math::sin(Singleton->tdc.pitch));
+    // Move
+    Math::mat4 worldTransform = Game::GetProperty<Math::mat4>(Singleton->playerEntity, Game::GetPropertyId("WorldTransform"_atm));
+    Math::vec4 pos = worldTransform.position;
+    float move_forward = input.forward*0.2f;
+    float move_strafe  = input.strafe *0.2f;
+    float yaw          = Singleton->tdc.yaw;
+    
+    pos.x += -sin(yaw) * move_forward - cos(yaw) * move_strafe;
+    pos.z +=  cos(yaw) * move_forward - sin(yaw) * move_strafe;
+
+    Game::SetProperty<Math::mat4>(Singleton->playerEntity, Game::GetPropertyId("WorldTransform"_atm), Math::translation({pos.x, pos.y, pos.z}));
+
+
+
+    // Update camera rotation and height.
+    // Development only
+    Math::mat4 camera_local_transform = 
+        Math::rotationy(Singleton->tdc.yaw) *
+        Math::rotationx(Singleton->tdc.pitch) *
+        Math::translation(0,0,Singleton->tdc.height/Math::sin(-Singleton->tdc.pitch));
+
     GraphicsFeature::Camera camera = Game::GetProperty<GraphicsFeature::Camera>(Singleton->playerEntity, Game::GetPropertyId("Camera"_atm));
     camera.localTransform = camera_local_transform;
     Game::SetProperty<GraphicsFeature::Camera>(Singleton->playerEntity, Game::GetPropertyId("Camera"_atm), camera);

@@ -2,8 +2,18 @@
     "namespace": "Demo",
     "properties": {
         "PlayerInput": {
-            "forward": "char",
-            "strafe": "char",
+            "forward": {
+                "_type_"    : "char",
+                "_default_" : 0
+            }
+            "strafe": {
+                "_type_"    : "char",
+                "_default_" : 0
+            },
+            "spawn_marker": {
+                "_type_"    : "bool",
+                "_default_" : false
+            }
         },
         "TopdownCamera": {
             "height": "float",
