@@ -16,6 +16,7 @@
 #include "game/api.h"
 #include "properties/movement.h"
 #include "properties/input.h"
+#include "scripting/python/pythonserver.h"
 
 namespace Demo
 {
@@ -87,6 +88,9 @@ PlayerManager::OnActivate()
         ImGui::SliderFloat("Camera yaw", &Singleton->tdc.yaw, 0.0f, 2*N_PI_DOUBLE);
         ImGui::End();
     });
+
+
+
 }
 
 //------------------------------------------------------------------------------

@@ -55,6 +55,7 @@ MovementManager::Create()
 
         Game::Filter marker_filter = Game::CreateFilter(info);
 
+        Game::Dataset marker_data = Game::Query(marker_filter); // peformance problem???
 
         Game::TimeSource const* const time = Game::TimeManager::GetTimeSource(TIMESOURCE_GAMEPLAY);
         for (int v = 0; v < data.numViews; v++)
@@ -68,7 +69,6 @@ MovementManager::Create()
                 Math::mat4& t = transforms[i];
                 Movement& move = moves[i];
         
-                Game::Dataset marker_data = Game::Query(marker_filter); // peformance problem???
 
                 if(Game::IsValid(move.target_entity) && Game::IsActive(move.target_entity) && Game::HasProperty(move.target_entity, Game::GetPropertyId("Marker")))
                 {
@@ -120,7 +120,9 @@ MovementManager::Create()
                 Math::vec4 new_pos = t.position + (move.direction * move.speed * time->frameTime).vec;
                 t.position = new_pos;
             }
+
         }
+        //Game::DestroyFilter(marker_filter);
     };
 
     Game::ProcessorHandle pHandle = Game::CreateProcessor(processorInfo);

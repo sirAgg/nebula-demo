@@ -1,5 +1,7 @@
 nebula_begin_app(nebula-demo windowed)
 
+fipsutil_copy(fips.yml)
+
 fips_dir(.)
     add_blueprint(
         data/tables/demo_blueprints.json
@@ -15,6 +17,8 @@ fips_dir(.)
         demogamefeatureunit.cc
         gamestatemanager.h
         gamestatemanager.cc
+        pythonbindings.h
+        pythonbindings.cc
     )
 
     fips_dir(managers)

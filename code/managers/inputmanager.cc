@@ -81,7 +81,7 @@ ProcessPlayerInput()
             {
                 input.forward = (char)io.KeysDown[Input::Key::W] - (char)io.KeysDown[Input::Key::S];
                 input.strafe  = (char)io.KeysDown[Input::Key::D] - (char)io.KeysDown[Input::Key::A];
-                input.spawn_marker = mouse->ButtonPressed(Input::MouseButton::Code::LeftButton);
+                //input.spawn_marker = mouse->ButtonPressed(Input::MouseButton::Code::LeftButton);
             }
             else
             {

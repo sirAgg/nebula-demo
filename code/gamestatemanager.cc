@@ -22,6 +22,7 @@
 #include "decals/decalcontext.h"
 #include "resources/resourceserver.h"
 #include "terrain/terraincontext.h"
+#include "scripting/python/pythonserver.h"
 
 #ifdef __WIN32__
 #include <shellapi.h>
@@ -134,7 +135,7 @@ GameStateManager::OnActivate()
         Game::SetProperty(entity, Game::GetPropertyId("WorldTransform"_atm), Math::rotationyawpitchroll(0.01f, 0.01f, 0.01f) * Math::translation({ 2, 5.0f + ((float)i * 1.0f), 0 }));
     }
 
-    for (size_t i = 0; i < 10; i++)
+    for (size_t i = 0; i < 0; i++)
     {
         Game::EntityCreateInfo info;
         info.immediate = true;
@@ -159,6 +160,7 @@ GameStateManager::OnBeginFrame()
     {
         Core::SysFunc::Exit(0);
     }
+    Scripting::ScriptServer::Instance()->EvalFile("scripts/update.py");
 }
 
 //------------------------------------------------------------------------------
