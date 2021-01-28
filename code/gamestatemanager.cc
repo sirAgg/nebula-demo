@@ -96,6 +96,7 @@ GameStateManager::OnActivate()
         Preload("mdl:dev/knob_metallic.n3");
         Preload("mdl:dev/knob_plastic_scuffed.n3");
         Preload("mdl:dev/knob_reflective.n3");
+        Preload("mdl:dev/scene.n3");
     } // #################################
 
     {
@@ -140,6 +141,14 @@ GameStateManager::OnActivate()
         Game::EntityCreateInfo info;
         info.immediate = true;
         info.templateId = Game::GetTemplateId("MovingEntity/cube"_atm);
+        Game::Entity entity = Game::CreateEntity(info);
+        Game::SetProperty(entity, Game::GetPropertyId("WorldTransform"_atm), Math::translation({ 0, 0.5f, 0 }));
+    }
+
+    {
+        Game::EntityCreateInfo info;
+        info.immediate = true;
+        info.templateId = Game::GetTemplateId("MovingEntity/agent"_atm);
         Game::Entity entity = Game::CreateEntity(info);
         Game::SetProperty(entity, Game::GetPropertyId("WorldTransform"_atm), Math::translation({ 0, 0.5f, 0 }));
     }

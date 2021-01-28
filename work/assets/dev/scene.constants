@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<Nebula version="4">
+    <Model name="dev/scene" bboxcenter="0.000000,-1.054733,-7.000000,1.000000" bboxextents="8.000000,5.054732,17.000000,0.000000">
+        <ShapeNodes>
+            <ShapeNode name="Villager_02 - Default_0:0" type="static" path="root/Villager_02 - Default_0:0" useLOD="false" primitive="0" position="0.000000,-5.000000,-0.000000,1.000000" rotation="-0.707107,0.000000,0.000000,0.707107" scale="1.000000,1.000000,1.000000,0.000000" mesh="msh:dev/scene.nvx2" bboxcenter="0.000000,-1.054733,-7.000000,1.000000" bboxextents="8.000000,5.054732,17.000000,0.000000" />
+        </ShapeNodes>
+    </Model>
+</Nebula>

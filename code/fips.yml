@@ -9,5 +9,3 @@ files:
     - update.py
     - agent.py
     - state.py
-    - sleep_state.py
-    - work_state.py

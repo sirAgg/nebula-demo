@@ -1,0 +1,13 @@
+{
+    "blueprint": "AgentEntity",
+    "properties": {
+        "ModelResource": "mdl:dev/scene.n3",
+        "Agent": {
+            "tiredness"     : 0,
+            "hunger"        : 0,
+            "thirst"        : 0,
+            "social_metric" : 0,
+            "money"         : 0
+        }
+    }
+

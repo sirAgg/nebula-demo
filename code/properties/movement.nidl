@@ -39,6 +39,14 @@
         },
         "Marker" : {
             "position" : "vec3"
+        },
+        "Agent":{
+            "position"      : "vec3",
+            "tiredness"     : "int",
+            "hunger"        : "int",
+            "thirst"        : "int",
+            "social_metric" : "int",
+            "money"         : "int"
         }
     }
 }

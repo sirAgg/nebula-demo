@@ -49,6 +49,14 @@
                 "ModelResource",
                 "Marker"
             ]
+        },
+        "AgentEntity": {
+            "desc": "An agent controlled by python AI",
+            "properties": [
+                "WorldTransform",
+                "ModelResource",
+                "Agent"
+            ]
         }
     }
 }

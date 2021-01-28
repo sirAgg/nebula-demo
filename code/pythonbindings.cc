@@ -24,13 +24,13 @@
             if(Game::HasProperty(e, Game::GetPropertyId(#name))) {\
                 return py::cast(Game::GetProperty<type>(e, Game::GetPropertyId(#name)));\
             } else {\
-                PyErr_SetNone(Py_None); return pybind11::cast(NULL);\
+                throw pybind11::value_error("This entity does not have a '" #name "' property.");\
             }\
         }, [](Game::Entity& e, pybind11::object obj) {\
             if(Game::HasProperty(e, Game::GetPropertyId(#name))) {\
                 Game::SetProperty<type>(e, Game::GetPropertyId(#name), pybind11::cast<type>(obj));\
             } else {\
-                PyErr_SetNone(Py_None);\
+                throw pybind11::value_error("This entity does not have a '" #name "' property.");\
             }\
         })
 
@@ -51,7 +51,9 @@ PYBIND11_EMBEDDED_MODULE(demo, m)
         .defPropertyAccessor(Demo::PlayerInput,     PlayerInput)
         .defPropertyAccessor(Demo::TopdownCamera,   TopdownCamera)
         .defPropertyAccessor(Demo::Movement,        Movement)
-        .defPropertyAccessor(Demo::Marker,          Marker);
+        .defPropertyAccessor(Demo::Marker,          Marker)
+        .defPropertyAccessor(Demo::Agent,           Agent);
+
     m.def("Delete", [](Game::Entity& e)
             {
                 Game::DeleteEntity(e);
@@ -78,8 +80,14 @@ PYBIND11_EMBEDDED_MODULE(demo, m)
     
     py::class_<Demo::Marker>(m, "Marker")
         .defReadWriteVec3(Demo::Marker, position);
-
-
+ 
+    py::class_<Demo::Agent>(m, "Agent")
+        .defReadWriteVec3(Demo::Agent, position)
+        .defReadWrite(Demo::Agent, tiredness)
+        .defReadWrite(Demo::Agent, hunger)
+        .defReadWrite(Demo::Agent, thirst)
+        .defReadWrite(Demo::Agent, social_metric)
+        .defReadWrite(Demo::Agent, money);
 
 
     m.def("HelloSayer", [](){IO::Console::Instance()->Print("I am saying HELLO!!!");}, "Says hello.");
@@ -103,8 +111,8 @@ PYBIND11_EMBEDDED_MODULE(demo, m)
     ////m.def("SpawnEntity")
 
     m.def("GetFrameTime", [](){return Game::TimeManager::GetTimeSource(TIMESOURCE_GAMEPLAY)->frameTime;});
-    m.def("PauseTime", [](){return Game::TimeManager::GetTimeSource(TIMESOURCE_GAMEPLAY)->pauseCounter++;});
-    m.def("UnPauseTime", [](){return Game::TimeManager::GetTimeSource(TIMESOURCE_GAMEPLAY)->pauseCounter--;});
+    m.def("PauseTime",    [](){return Game::TimeManager::GetTimeSource(TIMESOURCE_GAMEPLAY)->pauseCounter++;});
+    m.def("UnPauseTime",  [](){return Game::TimeManager::GetTimeSource(TIMESOURCE_GAMEPLAY)->pauseCounter--;});
 }
 
 
