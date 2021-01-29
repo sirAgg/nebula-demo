@@ -17,7 +17,7 @@
 #include "timing/timer.h"
 #include "properties/input.h"
 #include "properties/movement.h"
-//#include "scripting/python/conversion.h"
+#include "imgui.h"
 
 #define defPropertyAccessor(type, name) def_property(#name,\
         [](Game::Entity& e){\
@@ -87,7 +87,8 @@ PYBIND11_EMBEDDED_MODULE(demo, m)
         .defReadWrite(Demo::Agent, hunger)
         .defReadWrite(Demo::Agent, thirst)
         .defReadWrite(Demo::Agent, social_metric)
-        .defReadWrite(Demo::Agent, money);
+        .defReadWrite(Demo::Agent, money)
+        .defReadWrite(Demo::Agent, food_storage);
 
 
     m.def("HelloSayer", [](){IO::Console::Instance()->Print("I am saying HELLO!!!");}, "Says hello.");
@@ -114,6 +115,19 @@ PYBIND11_EMBEDDED_MODULE(demo, m)
     m.def("PauseTime",    [](){return Game::TimeManager::GetTimeSource(TIMESOURCE_GAMEPLAY)->pauseCounter++;});
     m.def("UnPauseTime",  [](){return Game::TimeManager::GetTimeSource(TIMESOURCE_GAMEPLAY)->pauseCounter--;});
 }
+
+PYBIND11_EMBEDDED_MODULE(imgui, m)
+{
+    m.def("Begin", &ImGui::Begin);
+    m.def("End", &ImGui::End);
+    m.def("Text", [](const char* text){ImGui::TextUnformatted(text);});
+    m.def("InputFloat", [](const char* label, float v)
+            {
+                ImGui::InputFloat(label, &v);
+                return v;
+            });
+}
+
 
 
 }

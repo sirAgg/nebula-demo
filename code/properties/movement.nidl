@@ -46,7 +46,8 @@
             "hunger"        : "int",
             "thirst"        : "int",
             "social_metric" : "int",
-            "money"         : "int"
+            "money"         : "int",
+            "food_storage"  : "int"
         }
     }
 }

@@ -23,6 +23,7 @@
 #include "resources/resourceserver.h"
 #include "terrain/terraincontext.h"
 #include "scripting/python/pythonserver.h"
+#include "io/console.h"
 
 #ifdef __WIN32__
 #include <shellapi.h>
@@ -96,7 +97,7 @@ GameStateManager::OnActivate()
         Preload("mdl:dev/knob_metallic.n3");
         Preload("mdl:dev/knob_plastic_scuffed.n3");
         Preload("mdl:dev/knob_reflective.n3");
-        Preload("mdl:dev/scene.n3");
+        Preload("mdl:dev/villager.n3");
     } // #################################
 
     {
@@ -155,7 +156,7 @@ GameStateManager::OnActivate()
 
     GraphicsFeature::GraphicsFeatureUnit::Instance()->AddRenderUICallback([]()
     {
-        
+        Scripting::ScriptServer::Instance()->Eval("NebulaImguiDraw()");
     });
 }
 
@@ -169,7 +170,8 @@ GameStateManager::OnBeginFrame()
     {
         Core::SysFunc::Exit(0);
     }
-    Scripting::ScriptServer::Instance()->EvalFile("scripts/update.py");
+    
+    Scripting::ScriptServer::Instance()->Eval("NebulaUpdate()");
 }
 
 //------------------------------------------------------------------------------

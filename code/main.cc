@@ -68,6 +68,7 @@ private:
         this->gameServer->AttachGameFeature(this->editorFeatureUnit);
 #endif
     
+        Scripting::ScriptServer::Instance()->AddModulePath("scripts");
         Scripting::ScriptServer::Instance()->EvalFile("scripts/bootstrap.py");
         Scripting::ScriptServer::Instance()->EvalFile("scripts/main.py");
 	}

@@ -1,13 +1,15 @@
 {
     "blueprint": "AgentEntity",
     "properties": {
-        "ModelResource": "mdl:dev/scene.n3",
+        "ModelResource": "mdl:dev/villager.n3",
         "Agent": {
-            "tiredness"     : 0,
-            "hunger"        : 0,
-            "thirst"        : 0,
-            "social_metric" : 0,
-            "money"         : 0
+            "tiredness"     : 100,
+            "hunger"        : 100,
+            "thirst"        : 100,
+            "social_metric" : 100,
+            "money"         : 150,
+            "food_storage"  : 7
         }
     }
+}
 
