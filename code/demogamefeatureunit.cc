@@ -10,6 +10,7 @@
 #include "managers/inputmanager.h"
 #include "managers/movementmanager.h"
 #include "managers/playermanager.h"
+#include "managers/agnetmanager.h"
 
 namespace Demo
 {
@@ -45,6 +46,7 @@ DemoGameFeatureUnit::OnActivate()
     this->AttachManager(Demo::InputManager::Create());
     this->AttachManager(Demo::MovementManager::Create());
     this->AttachManager(Demo::PlayerManager::Create());
+    this->AttachManager(Demo::AgentManager::Create());
 }
 
 //------------------------------------------------------------------------------

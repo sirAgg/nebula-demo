@@ -9,3 +9,6 @@ files:
     - update.py
     - agent.py
     - state.py
+    - agent_manager.py
+    - message.py
+    - places.py

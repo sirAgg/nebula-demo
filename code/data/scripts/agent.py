@@ -1,7 +1,6 @@
-import state
+import state, message, places
 import demo, nmath, imgui
 import math
-
 
 class Agent:
 
@@ -16,10 +15,14 @@ class Agent:
     # money         = 0
     # food_storage  = 7
 
-    def __init__(self):
+    def __init__(self, home_place, work_place):
+        self.home_place = home_place
+        self.work_place = work_place
+        self.place = places.start_place
         self.entity = demo.SpawnEntity("AgentEntity/agent")
         #self.entity = demo.SpawnEntity("StaticEnvironment/knob_metallic")
         self.entity.WorldTransform = nmath.Mat4.scaling(0.1,0.1,0.1) * nmath.Mat4.rotation_y(-math.pi/2) * nmath.Mat4.translation(0,0.5,0)
+        self.state = self.EvalNextState(self.entity.Agent)
 
     def set_pos(self, pos: nmath.Point):
         x = pos.x
@@ -29,17 +32,26 @@ class Agent:
 
     def update(self):
         a = self.entity.Agent
-        self.state = self.state.execute(a, self)
+        s = self.state.execute(a, self)
+
+        if s != self.state:
+            self.state.end_state()
+            self.state = s
+            self.state.begin_state()
+
         self.entity.Agent = a
+        self.IsDead(a)
 
     def imguiDraw(self):
         a = self.entity.Agent
         members = [(attr, getattr(a,attr)) for attr in dir(a) if not callable(getattr(a,attr)) and not attr.startswith("__")]
 
-        imgui.Begin("Agent 1", None, 0)
+        imgui.Begin("Agent " + str(self.a_id), None, 0)
 
         try:
             imgui.Text(str(self.state))
+            imgui.Text("place " + str(self.place))
+            imgui.Text("target " + str(self.target))
 
             for member, value in members:
                 imgui.Text(member + ": " + str(value))
@@ -53,19 +65,32 @@ class Agent:
     def EvalNextState(self, agent: object):
         if agent.thirst < 30:
             return state.DrinkingState()
-        elif agent.hunger < 30:
+        elif agent.hunger < 50:
             return state.EatingState()
-        elif agent.tiredness < 20:
+        elif agent.tiredness < 40:
             required_sleep = 100 - agent.tiredness
-            if agent.thirst < required_sleep + 4:
+            if self.place != self.home_place:
+                self.target = self.home_place
+                return state.MovingState()
+            elif agent.thirst < required_sleep/2 + 4:
                 return state.DrinkingState()
-            elif agent.hunger < required_sleep + 4:
+            elif agent.hunger < required_sleep/2 + 4:
                 return state.EatingState()
-            return state.SleepingState()
+            else: 
+                #message.Message.broadcast_msg(self.a_id, "I'm sleeping " + str(self.a_id))
+                return state.SleepingState()
         elif len(self.shopping_list) > 0:
-            return state.ShoppingState()
+            if self.place != places.shop:
+                self.target = places.shop
+                return state.MovingState()
+            else:
+                return state.ShoppingState()
         else:
-            return state.WorkingState()
+            if self.place != self.work_place:
+                self.target = self.work_place
+                return state.MovingState()
+            else:
+                return state.WorkingState()
 
 
     def LowerStats(self, agent: object):

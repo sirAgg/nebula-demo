@@ -13,6 +13,7 @@
 #include "timing/timer.h"
 #include "util/random.h"
 #include "basegamefeature/managers/timemanager.h"
+#include "io/console.h"
 
 namespace Demo
 {
