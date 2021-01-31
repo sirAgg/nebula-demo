@@ -1,125 +1,151 @@
-import message    
+import message, places
 import nmath
 
 class WorkingState:
-    def begin_state(self, pagent: object):
+    def begin_state(self, agent: object):
         pass
 
-    def end_state(self, pagent: object):
+    def end_state(self, agent: object):
         pass
 
-    def execute(self, agent: object, pagent: object):
+    def execute(self, agent: object):
         agent.money += 1
-        pagent.LowerStats(agent)
+        agent.LowerStats()
 
 
-        return pagent.EvalNextState(agent)
+        return agent.EvalNextState()
 
     def __repr__(self):
         return "WorkingState"
 
-    def handle_msg(msg: message.Message):
-        pass
+    def handle_msg(self, agent: object, msg: message.Message):
+        if msg.text == "Wanna hang out?" and not agent.made_plans:
+            agent.made_plans = True
+            message.send_msg_to(agent.a_id, msg.sender, "Yea dude")
 
 class SleepingState:
-    def begin_state(self, pagent: object):
+    def begin_state(self, agent: object):
         pass
 
-    def end_state(self, pagent: object):
+    def end_state(self, agent: object):
         pass
 
-    def execute(self, agent: object, pagent: object):
-        agent.tiredness += 3
+    def execute(self, agent: object):
+        agent.tiredness += 5
 
-        pagent.LowerStats(agent)
+        agent.LowerStats()
 
-        if agent.tiredness > 100:
-            return pagent.EvalNextState(agent)
+        if agent.tiredness > 200:
+            return agent.EvalNextState()
 
         return self
 
     def __repr__(self):
         return "SleepingState"
 
+    def handle_msg(self, agent: object, msg: message.Message):
+        if msg.text == "Wanna hang out?":
+            message.send_msg_to(agent.a_id, msg.sender, "Sorry fam")
+
 class ShoppingState:
-    def begin_state(self, pagent: object):
+    def begin_state(self, agent: object):
         pass
 
-    def end_state(self, pagent: object):
+    def end_state(self, agent: object):
         pass
 
-    def execute(self, agent: object, pagent: object):
-        for item in pagent.shopping_list:
-            if item == "food":
-                agent.food_storage += 10
-                agent.money -= 150
+    def execute(self, agent: object):
+        if len(agent.shopping_list):
+            item = agent.shopping_list[0]
+            if item[0] == "food":
+                agent.food_storage += 1
+                item[1] -= 1
+                agent.money -= 15
+                if item[1] <= 0:
+                    agent.shopping_list = agent.shopping_list[1:]
+            return self
+        else:
+            return agent.EvalNextState()
 
-        pagent.shopping_list = []
-
-        return pagent.EvalNextState(agent)
+        
 
     def __repr__(self):
         return "ShoppingState"
 
+    def handle_msg(self, agent: object, msg: message.Message):
+        if msg.text == "Wanna hang out?" and not agent.made_plans:
+            agent.made_plans = True
+            message.send_msg_to(agent.a_id, msg.sender, "Yea dude")
+
 class EatingState:
-    def begin_state(self, pagent: object):
+    def begin_state(self, agent: object):
         pass
 
-    def end_state(self, pagent: object):
+    def end_state(self, agent: object):
         pass
 
-    def execute(self, agent: object, pagent: object):
-        agent.hunger += 100
+    def execute(self, agent: object):
+        agent.hunger += 125
         agent.food_storage -= 1;
 
-        pagent.LowerStats(agent)
+        agent.LowerStats()
 
         if(agent.food_storage < 3):
-            pagent.shopping_list.append("food")
+            agent.shopping_list.append(["food", 5])
 
-
-        return pagent.EvalNextState(agent)
-
+        return agent.EvalNextState()
 
     def __repr__(self):
         return "EatingState"
 
+    def handle_msg(self, agent: object, msg: message.Message):
+        if msg.text == "Wanna hang out?" and not agent.made_plans:
+            agent.made_plans = True
+            message.send_msg_to(agent.a_id, msg.sender, "Yea dude")
+
 class DrinkingState:
-    def begin_state(self, pagent: object):
+    def begin_state(self, agent: object):
         pass
 
-    def end_state(self, pagent: object):
+    def end_state(self, agent: object):
         pass
 
-    def execute(self, agent: object, pagent: object):
-        agent.thirst += 21
+    def execute(self, agent: object):
+        agent.thirst += 35
 
-        pagent.LowerStats(agent)
+        agent.LowerStats()
 
-        if agent.thirst >= 100:
-            return pagent.EvalNextState(agent)
+        if agent.thirst >= 200:
+            return agent.EvalNextState()
 
         return self
 
     def __repr__(self):
         return "DrinkingState"
 
+    def handle_msg(self, agent: object, msg: message.Message):
+        if msg.text == "Wanna hang out?" and not agent.made_plans:
+            agent.made_plans = True
+            message.send_msg_to(agent.a_id, msg.sender, "Yea dude")
+
 class MovingState:
-    def begin_state(self, pagent: object):
+    def begin_state(self, agent: object):
+        agent.place.agents_at_this_place -= 1
+        agent.place = places.start_place
+
+    def end_state(self, agent: object):
         pass
 
-    def end_state(self, pagent: object):
-        pass
-
-    def execute(self, agent: object, pagent: object):
+    def execute(self, agent: object):
         pos = nmath.Vec4(agent.position.x, agent.position.y, agent.position.z, 0)
-        v = pagent.target.pos - pos
+        v = agent.target.pos - pos
 
-        pagent.LowerStats(agent)
+        agent.LowerStats()
 
-        if v.length3() < 0.2:
-            pagent.place = pagent.target
-            return pagent.EvalNextState(agent)
+        if v.length3_sq() < 0.2:
+            agent.place = agent.target
+            agent.place.agents_at_this_place += 1
+            return agent.EvalNextState()
 
         v = nmath.Vec4.normalize(v)
         pos = pos + (v * 0.3)
@@ -129,3 +155,32 @@ class MovingState:
 
     def __repr__(self):
         return "MovingState"
+
+    def handle_msg(self, agent: object, msg: message.Message):
+        if msg.text == "Wanna hang out?" and not agent.made_plans:
+            agent.made_plans = True
+            message.send_msg_to(agent.a_id, msg.sender, "Yea dude")
+
+class SocializeState:
+    def begin_state(self, agent: object):
+        pass
+
+    def end_state(self, agent: object):
+        pass
+
+    def execute(self, agent: object):
+        if agent.n_agents_coming <= 0:
+            agent.initiated_plans = False
+            agent.made_plans = False
+
+        agent.social_metric += 2
+        agent.LowerStats()
+        return agent.EvalNextState()
+
+    def __repr__(self):
+        return "SocializeState"
+
+    def handle_msg(self, agent: object, msg: message.Message):
+        if msg.text == "Wanna hang out?":
+            agent.plans = True
+            message.send_msg_to(agent.a_id, msg.sender, "Sorry fam")

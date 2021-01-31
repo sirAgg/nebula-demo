@@ -18,6 +18,8 @@
 #include "properties/input.h"
 #include "properties/movement.h"
 #include "imgui.h"
+#include "dynui/im3d/im3d.h"
+#include "input/keyboard.h"
 
 #define defPropertyAccessor(type, name) def_property(#name,\
         [](Game::Entity& e){\
@@ -114,6 +116,17 @@ PYBIND11_EMBEDDED_MODULE(demo, m)
     m.def("GetFrameTime", [](){return Game::TimeManager::GetTimeSource(TIMESOURCE_GAMEPLAY)->frameTime;});
     m.def("PauseTime",    [](){return Game::TimeManager::GetTimeSource(TIMESOURCE_GAMEPLAY)->pauseCounter++;});
     m.def("UnPauseTime",  [](){return Game::TimeManager::GetTimeSource(TIMESOURCE_GAMEPLAY)->pauseCounter--;});
+
+    m.def("IsTabDown", []()
+            {
+                auto& io = ImGui::GetIO();
+                if (!io.WantCaptureMouse)
+                    return io.KeysDown[Input::Key::Tab];
+                else
+                    return false;
+            });
+
+    m.def("DrawBlueDot", [](Math::point& p, float size){ Math::vec3 v = p.vec; Im3d::DrawPoint(v, size, Im3d::Color(0,0,1,1));});
 }
 
 
@@ -122,11 +135,6 @@ PYBIND11_EMBEDDED_MODULE(imgui, m)
     m.def("Begin", &ImGui::Begin);
     m.def("End", &ImGui::End);
     m.def("Text", [](const char* text){ImGui::TextUnformatted(text);});
-    m.def("InputFloat", [](const char* label, float v)
-            {
-                ImGui::InputFloat(label, &v);
-                return v;
-            });
 }
 
 
