@@ -1,10 +1,10 @@
 import demo
-import agent
+import agent, button_input
 
 class AgentManager:
     def __init__(self):
         self.agents = []
-        self.is_tab_pressed = False
+        self.tab_input = button_input.ButtonInput(demo.IsTabDown)
         self.selected_agent = 0
 
     def add_agent(self, agent):
@@ -22,17 +22,18 @@ class AgentManager:
         for agent in self.agents:
             agent.update()
 
-        is_tab_down = demo.IsTabDown()
-        if is_tab_down and not self.is_tab_pressed:
+        if self.tab_input.pressed():
             self.selected_agent = self.selected_agent%len(self.agents) +1
             print("selected_agent: " + str(self.selected_agent))
-        self.is_tab_pressed = is_tab_down
+
+    def get_selected_agent(self):
+        return self.get_agent(self.selected_agent)
 
 
     def imgui_draw_stats(self):
-        for agent in self.agents:
-            agent.imguiDraw()
+        self.get_agent(self.selected_agent).imguiDraw()
+
+        demo.DrawBlueDot(self.get_agent(self.selected_agent).position, 20.0)
 
 
 manager = AgentManager()
-

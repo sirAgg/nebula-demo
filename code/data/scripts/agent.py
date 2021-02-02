@@ -26,7 +26,6 @@ class Agent:
         self.place = places.start_place
 
         self.entity = demo.SpawnEntity("AgentEntity/agent")
-        #self.entity = demo.SpawnEntity("StaticEnvironment/knob_metallic")
         self.entity.WorldTransform = nmath.Mat4.scaling(0.1,0.1,0.1) * nmath.Mat4.rotation_y(-math.pi/2) * nmath.Mat4.translation(0,0.5,0)
         self.state = self.EvalNextState()
 
@@ -96,7 +95,6 @@ class Agent:
             elif self.hunger < required_sleep/2 + 4:
                 return state.EatingState()
             else: 
-                #message.Message.broadcast_msg(self.a_id, "I'm sleeping " + str(self.a_id))
                 return state.SleepingState()
         else:
             if self.initiated_plans or self.made_plans:
@@ -108,7 +106,7 @@ class Agent:
                     return state.MovingState()
                 else:
                     return state.SocializeState()
-            elif self.social_metric < 75:
+            elif self.social_metric < 150:
                 message.broadcast_msg(self.a_id, "Wanna hang out?")
                 self.initiated_plans = True
                 self.n_agents_coming = 0

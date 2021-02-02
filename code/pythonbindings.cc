@@ -18,7 +18,7 @@
 #include "properties/input.h"
 #include "properties/movement.h"
 #include "imgui.h"
-#include "dynui/im3d/im3d.h"
+#include "dynui/im3d/im3dcontext.h"
 #include "input/keyboard.h"
 
 #define defPropertyAccessor(type, name) def_property(#name,\
@@ -125,9 +125,34 @@ PYBIND11_EMBEDDED_MODULE(demo, m)
                 else
                     return false;
             });
+    m.def("IsPdown", []()
+            {
+                auto& io = ImGui::GetIO();
+                if (!io.WantCaptureMouse)
+                    return io.KeysDown[Input::Key::P];
+                else
+                    return false;
+            });
+    m.def("IsUpdown", []()
+            {
+                auto& io = ImGui::GetIO();
+                if (!io.WantCaptureMouse)
+                    return io.KeysDown[Input::Key::Up];
+                else
+                    return false;
+            });
+    m.def("IsDowndown", []()
+            {
+                auto& io = ImGui::GetIO();
+                if (!io.WantCaptureMouse)
+                    return io.KeysDown[Input::Key::Down];
+                else
+                    return false;
+            });
 
-    m.def("DrawBlueDot", [](Math::point& p, float size){ Math::vec3 v = p.vec; Im3d::DrawPoint(v, size, Im3d::Color(0,0,1,1));});
+    m.def("DrawBlueDot", [](Math::point& p, float size){ Math::vec3 v = p.vec; Im3d::Im3dContext::DrawPoint(v, size, Math::vec4(0,0,1,1));});
 }
+
 
 
 PYBIND11_EMBEDDED_MODULE(imgui, m)
@@ -136,7 +161,5 @@ PYBIND11_EMBEDDED_MODULE(imgui, m)
     m.def("End", &ImGui::End);
     m.def("Text", [](const char* text){ImGui::TextUnformatted(text);});
 }
-
-
 
 }

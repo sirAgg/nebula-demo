@@ -163,7 +163,7 @@ GameStateManager::OnActivate()
 
     GraphicsFeature::GraphicsFeatureUnit::Instance()->AddRenderUICallback([]()
     {
-        Scripting::ScriptServer::Instance()->Eval("NebulaImguiDraw()");
+        Scripting::ScriptServer::Instance()->Eval("NebulaDraw()");
     });
 }
 
