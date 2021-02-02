@@ -54,4 +54,4 @@ def NebulaUpdate():
 
 # Runs one every frame when it's time to draw
 def NebulaDraw():
-    agent_manager.manager.imgui_draw_stats()
+    agent_manager.manager.draw()

@@ -20,6 +20,8 @@
 #include "imgui.h"
 #include "dynui/im3d/im3dcontext.h"
 #include "input/keyboard.h"
+#include "managers/playermanager.h"
+#include "graphicsfeature/graphicsfeatureunit.h"
 
 #define defPropertyAccessor(type, name) def_property(#name,\
         [](Game::Entity& e){\
@@ -54,7 +56,8 @@ PYBIND11_EMBEDDED_MODULE(demo, m)
         .defPropertyAccessor(Demo::TopdownCamera,   TopdownCamera)
         .defPropertyAccessor(Demo::Movement,        Movement)
         .defPropertyAccessor(Demo::Marker,          Marker)
-        .defPropertyAccessor(Demo::Agent,           Agent);
+        .defPropertyAccessor(Demo::Agent,           Agent)
+        .defPropertyAccessor(GraphicsFeature::Camera, Camera);
 
     m.def("Delete", [](Game::Entity& e)
             {
@@ -65,6 +68,15 @@ PYBIND11_EMBEDDED_MODULE(demo, m)
         .defReadWrite(Demo::PlayerInput, forward)
         .defReadWrite(Demo::PlayerInput, strafe)
         .defReadWrite(Demo::PlayerInput, spawn_marker);
+
+    py::class_<GraphicsFeature::Camera>(m, "Camera")
+        .defReadWrite(GraphicsFeature::Camera, viewHandle)
+        .defReadWrite(GraphicsFeature::Camera, localTransform)
+        .defReadWrite(GraphicsFeature::Camera, fieldOfView)
+        .defReadWrite(GraphicsFeature::Camera, aspectRatio)
+        .defReadWrite(GraphicsFeature::Camera, zNear)
+        .defReadWrite(GraphicsFeature::Camera, zFar)
+        .defReadWrite(GraphicsFeature::Camera, orthographicWidth);
     
     py::class_<Demo::TopdownCamera>(m, "TopdownCamera")
         .defReadWrite(Demo::TopdownCamera, height)
@@ -111,7 +123,9 @@ PYBIND11_EMBEDDED_MODULE(demo, m)
             return Game::CreateEntity(info);
             });
 
-    ////m.def("SpawnEntity")
+    m.def("GetPlayer", [](){return Demo::PlayerManager::Instance()->get_player();});
+    m.def("SetCameraPos", [](Math::point p){Demo::PlayerManager::Instance()->set_target_pos(p);});
+
 
     m.def("GetFrameTime", [](){return Game::TimeManager::GetTimeSource(TIMESOURCE_GAMEPLAY)->frameTime;});
     m.def("PauseTime",    [](){return Game::TimeManager::GetTimeSource(TIMESOURCE_GAMEPLAY)->pauseCounter++;});

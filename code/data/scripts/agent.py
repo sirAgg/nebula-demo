@@ -96,38 +96,37 @@ class Agent:
                 return state.EatingState()
             else: 
                 return state.SleepingState()
-        else:
-            if self.initiated_plans or self.made_plans:
-                if self.initiated_plans:
-                    self.initiated_plans = False
-                self.made_plans = True
-                if self.place != places.traversen:
-                    self.target = places.traversen
-                    return state.MovingState()
-                else:
-                    return state.SocializeState()
-            elif self.social_metric < 150:
-                message.broadcast_msg(self.a_id, "Wanna hang out?")
-                self.initiated_plans = True
-                self.n_agents_coming = 0
-                if self.place != places.traversen:
-                    self.target = places.traversen
-                    return state.MovingState()
-                else:
-                    return state.SocializeState()
-                
-            elif len(self.shopping_list) > 0:
-                if self.place != places.shop:
-                    self.target = places.shop
-                    return state.MovingState()
-                else:
-                    return state.ShoppingState()
+        elif self.initiated_plans or self.made_plans:
+            if self.initiated_plans:
+                self.initiated_plans = False
+            self.made_plans = True
+            if self.place != places.traversen:
+                self.target = places.traversen
+                return state.MovingState()
             else:
-                if self.place != self.work_place:
-                    self.target = self.work_place
-                    return state.MovingState()
-                else:
-                    return state.WorkingState()
+                return state.SocializeState()
+        elif self.social_metric < 150:
+            message.broadcast_msg(self.a_id, "Wanna hang out?")
+            self.initiated_plans = True
+            self.n_agents_coming = 0
+            if self.place != places.traversen:
+                self.target = places.traversen
+                return state.MovingState()
+            else:
+                return state.SocializeState()
+            
+        elif len(self.shopping_list) > 0:
+            if self.place != places.shop:
+                self.target = places.shop
+                return state.MovingState()
+            else:
+                return state.ShoppingState()
+        else:
+            if self.place != self.work_place:
+                self.target = self.work_place
+                return state.MovingState()
+            else:
+                return state.WorkingState()
 
     def receive_msg(self, message):
         if self.initiated_plans:

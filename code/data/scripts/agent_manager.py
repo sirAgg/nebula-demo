@@ -30,7 +30,7 @@ class AgentManager:
         return self.get_agent(self.selected_agent)
 
 
-    def imgui_draw_stats(self):
+    def draw(self):
         self.get_agent(self.selected_agent).imguiDraw()
 
         demo.DrawBlueDot(self.get_agent(self.selected_agent).position, 20.0)

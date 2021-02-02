@@ -17,6 +17,7 @@
 #include "properties/movement.h"
 #include "properties/input.h"
 #include "scripting/python/pythonserver.h"
+#include "math/scalar.h"
 
 namespace Demo
 {
@@ -138,17 +139,25 @@ PlayerManager::OnBeginFrame()
     }
 
     // Move
-    Math::mat4 worldTransform = Game::GetProperty<Math::mat4>(Singleton->playerEntity, Game::GetPropertyId("WorldTransform"_atm));
-    Math::vec4 pos = worldTransform.position;
     float move_forward = input.forward*0.2f;
     float move_strafe  = input.strafe *0.2f;
     float yaw          = Singleton->tdc.yaw;
     
-    pos.x += -sin(yaw) * move_forward - cos(yaw) * move_strafe;
-    pos.z +=  cos(yaw) * move_forward - sin(yaw) * move_strafe;
+    Singleton->target_pos.x += -sin(yaw) * move_forward - cos(yaw) * move_strafe;
+    Singleton->target_pos.z +=  cos(yaw) * move_forward - sin(yaw) * move_strafe;
+    
+    Math::mat4 worldTransform = Game::GetProperty<Math::mat4>(Singleton->playerEntity, Game::GetPropertyId("WorldTransform"_atm));
+    Math::vec4 pos = worldTransform.position;
 
-    Game::SetProperty<Math::mat4>(Singleton->playerEntity, Game::GetPropertyId("WorldTransform"_atm), Math::translation({pos.x, pos.y, pos.z}));
+    auto direction = Singleton->target_pos - pos;
+    float length = Math::length3(direction);
+    if( length > TINY ) // What to do here, maybe set pos to target_pos when dstance is small
+    {
+        direction = Math::normalize(direction) * (length*0.1);
+        pos += direction;
 
+        Game::SetProperty<Math::mat4>(Singleton->playerEntity, Game::GetPropertyId("WorldTransform"_atm), Math::translation({pos.x, pos.y, pos.z}));
+    }
 
 
     // Update camera rotation and height.

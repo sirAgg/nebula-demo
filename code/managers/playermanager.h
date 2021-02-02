@@ -13,6 +13,7 @@
 #include "renderutil/freecamerautil.h"
 #include "game/entity.h"
 #include "Math/vector.h"
+#include "Math/vec4.h"
 #include "properties/input.h"
 
 namespace Demo
@@ -27,6 +28,9 @@ public:
 
 	/// Destroy the singleton
 	static void Destroy();
+
+    inline Game::Entity get_player() {return playerEntity;}
+    inline void set_target_pos(Math::point pos) {target_pos = pos.vec;}
 
 private:
 	/// constructor
@@ -45,6 +49,8 @@ private:
 
     // Mainly used for changing camera rotation and height, probably not nessesary in release
     Demo::TopdownCamera tdc;
+
+    Math::vec4 target_pos = {0,0,0,0};
 };
 
 } // namespace Demo
