@@ -33,3 +33,4 @@
 - End: Binding for ImGui::End.
 - Text: Binding for ImGui::TextUnformatted. Takes a string as argument.
 
+There is also functiond defined in bootstrap.py, SetFieldOfView for changing the field of view.
