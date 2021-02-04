@@ -13,3 +13,5 @@ files:
     - message.py
     - places.py
     - button_input.py
+    - map.py
+    - path_manager.py

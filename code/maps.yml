@@ -1,0 +1,9 @@
+---
+options:
+    src_dir: data/maps/
+    dst_dir: maps/
+
+files:
+    - Map1.txt
+    - Map2.txt
+    - Map3.txt
