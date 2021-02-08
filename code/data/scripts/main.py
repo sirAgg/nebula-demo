@@ -1,5 +1,6 @@
-import agent, agent_manager, message, button_input, map
+import agent, agent_manager, message, button_input, map, path_manager
 import math
+import nmath
 
 time = 0
 time_speeds = [1,2,4,8,15,30,60]
@@ -60,6 +61,10 @@ def NebulaDraw():
     pass
     #agent_manager.manager.draw()
 
-m = map.Map.load_from_file("a")
-print(m.board)
+m = map.Map.load_from_file("maps/Map1.txt", nmath.Float2(4,0))
 m.create_geometry()
+
+
+
+path_m = path_manager.PathManager(m)
+path_m.find_path()

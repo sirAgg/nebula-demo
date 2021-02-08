@@ -13,5 +13,10 @@ try:
 except:
     print("Bootstrap failed.")
 
+def NebulaUpdate():
+    pass
+def NebulaDraw():
+    pass
+
 
 
