@@ -33,7 +33,7 @@ class AgentManager:
     def draw(self):
         self.get_agent(self.selected_agent).imguiDraw()
 
-        demo.DrawBlueDot(self.get_agent(self.selected_agent).position, 20.0)
+        demo.DrawDot(self.get_agent(self.selected_agent).position, 10.0, nmath.Vec4(0,0,1,1))
 
 
 manager = AgentManager()

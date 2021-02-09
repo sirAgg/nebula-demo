@@ -164,7 +164,20 @@ PYBIND11_EMBEDDED_MODULE(demo, m)
                     return false;
             });
 
-    m.def("DrawBlueDot", [](Math::point& p, float size){ Math::vec3 v = p.vec; Im3d::Im3dContext::DrawPoint(v, size, Math::vec4(0,0,1,1));});
+    m.def("DrawDot", [](Math::point& p, float size, Math::vec4& color)
+            {
+                Math::vec3 v = p.vec;
+                Im3d::Im3dContext::DrawPoint(v, size, color);
+            });
+    m.def("DrawLine", [](Math::point& p1, Math::point& p2, float size, Math::vec4& color)
+            {
+                Im3d::Im3dContext::DrawLine(Math::line(p1,p2), size, color);
+            });
+    m.def("DrawBox", [](Math::point& p, float size, Math::vec4& color)
+            {
+                Math::mat4 m = Math::scaling(size) * Math::translation(p.vec);
+                Im3d::Im3dContext::DrawBox(m, color);
+            });
 }
 
 

@@ -15,3 +15,5 @@ files:
     - button_input.py
     - map.py
     - path_manager.py
+    - depth_first_search.py
+    - breath_first_search.py

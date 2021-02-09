@@ -60,3 +60,42 @@ class Map:
                     e = demo.SpawnEntity("StaticEnvironment/knob_reflective")
                     e.WorldTransform = nmath.Mat4.translation(x + self.pos.x,0.1,y + self.pos.y)
 
+    def get_neighbours(self, x,y):
+        neighbours = []
+
+        tl = True
+        tr = True
+        bl = True
+        br = True
+
+        if self.get(x + 0, y + 1) == TileTypes.WALL:
+            br = False
+            bl = False
+        if self.get(x + 0, y - 1) == TileTypes.WALL:
+            tr = False
+            tl = False
+        if self.get(x + 1, y + 0) == TileTypes.WALL:
+            tr = False
+            br = False
+        if self.get(x - 1, y + 0) == TileTypes.WALL:
+            tl = False
+            bl = False
+
+
+        neighbours.append(nmath.Float2( 1, 0))
+        neighbours.append(nmath.Float2( 0, 1))
+        neighbours.append(nmath.Float2(-1, 0))
+        neighbours.append(nmath.Float2( 0,-1))
+
+        if br:
+            neighbours.append(nmath.Float2( 1, 1))
+        if bl:
+            neighbours.append(nmath.Float2(-1, 1))
+        if tr:
+            neighbours.append(nmath.Float2( 1,-1))
+        if tl:
+            neighbours.append(nmath.Float2(-1,-1))
+
+        return neighbours
+
+
