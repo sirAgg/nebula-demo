@@ -17,3 +17,4 @@ files:
     - path_manager.py
     - depth_first_search.py
     - breath_first_search.py
+    - a_star.py

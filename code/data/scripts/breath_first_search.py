@@ -4,13 +4,13 @@ import map
 
 
 class BreathFirstSearch:
-
     def start(self, path, game_map):
         self.visited_nodes = numpy.zeros((game_map.width, game_map.height), dtype=numpy.uint8)
         self.queue = []
         self.queue.append((path.start_pos, -1))
         self.visited_nodes[int(path.start_pos.x)][int(path.start_pos.y)] = True
         self.queue_idx = 0
+
 
     def step(self, path, game_map):
         current_pos = self.queue[self.queue_idx][0]
@@ -40,8 +40,10 @@ class BreathFirstSearch:
         self.queue_idx += 1
         return False
 
+
     def __repr__(self):
         return "Breath first search"
+
 
     def visualize(self, path, game_map):
         for vn in self.queue[:self.queue_idx]:

@@ -1,6 +1,10 @@
-import agent, agent_manager, message, button_input, map, path_manager, depth_first_search, breath_first_search
+import agent, agent_manager, message, button_input, map, path_manager
 import math
 import nmath
+
+from depth_first_search  import *
+from breath_first_search import *
+from a_star import *
 
 time = 0
 time_speeds = [1,2,4,8,15,30,60]
@@ -26,7 +30,7 @@ m = map.Map.load_from_file("maps/Map3.txt", nmath.Float2(4,0))
 m.create_geometry()
 
 path_m = path_manager.PathManager(m)
-path = path_m.create_path(breath_first_search.BreathFirstSearch())
+path = path_m.create_path(AStar())
 #path_m.find_path(path)
 found_path = False
 
@@ -70,5 +74,20 @@ def NebulaUpdate():
 # Runs one every frame when it's time to draw
 def NebulaDraw():
     path_m.visualize_path(path)
+
+
+    members = [(attr, getattr(path.algorithm,attr)) for attr in dir(path.algorithm) if not callable(getattr(path.algorithm,attr)) and not attr.startswith("__")]
+
+    imgui.Begin("Astar", None, 0)
+    try:
+
+        for member, value in members:
+            imgui.Text(member + ": " + str(value))
+
+        imgui.End()
+
+    except Exception as e:
+        imgui.End()
+        raise e
     #agent_manager.manager.draw()
 
