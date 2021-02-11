@@ -26,13 +26,19 @@ speed_down   = button_input.ButtonInput(demo.IsDowndown)
 
 paused = True
     
-m = map.Map.load_from_file("maps/Map3.txt", nmath.Float2(4,0))
+m = map.Map.load_from_file("maps/Map2.txt", nmath.Float2(4,0))
 m.create_geometry()
 
 path_m = path_manager.PathManager(m)
-path = path_m.create_path(AStar())
-#path_m.find_path(path)
-found_path = False
+path_dfs = path_m.create_path(DepthFirstSearch())
+path_bfs = path_m.create_path(BreathFirstSearch())
+path_a   = path_m.create_path(AStar())
+path_m.find_path(path_dfs)
+path_m.find_path(path_bfs)
+path_m.find_path(path_a)
+
+path = path_dfs
+#found_path = False
 
 # Runs once every frame
 def NebulaUpdate():
@@ -63,10 +69,10 @@ def NebulaUpdate():
         #
         #s_agent = agent_manager.manager.get_selected_agent()
 
-        if not found_path:
-            if path_m.step_path(path):
-                print("Done")
-                found_path = True
+        #if not found_path:
+        #    if path_m.step_path(path):
+        #        print("Done")
+        #        found_path = True
 
         time = time_speeds[selected_time]
     time -= 1
@@ -78,7 +84,7 @@ def NebulaDraw():
 
     members = [(attr, getattr(path.algorithm,attr)) for attr in dir(path.algorithm) if not callable(getattr(path.algorithm,attr)) and not attr.startswith("__")]
 
-    imgui.Begin("Astar", None, 0)
+    imgui.Begin(str(path.algorithm), None, 0)
     try:
 
         for member, value in members:
@@ -90,4 +96,3 @@ def NebulaDraw():
         imgui.End()
         raise e
     #agent_manager.manager.draw()
-

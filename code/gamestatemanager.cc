@@ -25,6 +25,8 @@
 #include "scripting/python/pythonserver.h"
 #include "io/console.h"
 
+#include <chrono>
+
 #ifdef __WIN32__
 #include <shellapi.h>
 #elif __LINUX__
@@ -164,6 +166,13 @@ GameStateManager::OnActivate()
     GraphicsFeature::GraphicsFeatureUnit::Instance()->AddRenderUICallback([]()
     {
         Scripting::ScriptServer::Instance()->Eval("NebulaDraw()");
+        //auto start = std::chrono::high_resolution_clock::now();
+        //for(int x=0; x < 16; x++)
+        //    for(int y=0; y < 16; y++)
+        //        Im3d::Im3dContext::DrawPoint(Math::vec3(x+4,0,y), 10, Math::vec4(0,0,1,1));
+        //auto stop = std::chrono::high_resolution_clock::now();
+        //auto duration = std::chrono::duration_cast<std::chrono::microseconds>(stop - start);
+        //IO::Console::Instance()->Print("drawing a lot of dots took %f microseconds", duration.count());
     });
 }
 
