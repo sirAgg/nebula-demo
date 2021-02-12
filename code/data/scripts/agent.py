@@ -20,10 +20,12 @@ class Agent:
     initiated_plans = False
     n_agents_coming = 0
 
+    path = None
+
     def __init__(self, home_place, work_place):
         self.home_place = home_place
         self.work_place = work_place
-        self.place = places.start_place
+        self.place = places.manager.start_place
 
         self.entity = demo.SpawnEntity("AgentEntity/agent")
         self.entity.WorldTransform = nmath.Mat4.scaling(0.1,0.1,0.1) * nmath.Mat4.rotation_y(-math.pi/2) * nmath.Mat4.translation(0,0.5,0)

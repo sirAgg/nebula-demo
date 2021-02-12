@@ -54,9 +54,9 @@ class AStar:
             if not game_map.get_f2(p) == map.TileTypes.WALL:
                 f_node = self.f_values[int(p.x)][int(p.y)]
                 if n.x == 0 or n.y == 0:
-                    f_value = AStar.manhattan_dist(game_map.goal_pos, p) +1
+                    f_value = AStar.euclidean_dist(game_map.goal_pos, p) +1
                 else:
-                    f_value = AStar.manhattan_dist(game_map.goal_pos, p) +1.42
+                    f_value = AStar.euclidean_dist(game_map.goal_pos, p) +1.42
 
                 if f_node <= 0 or f_node > f_value:
                     self.f_values[int(p.x)][int(p.y)] = f_value

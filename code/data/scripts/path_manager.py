@@ -11,8 +11,7 @@ class Path:
 
 
 class PathManager:
-    def __init__(self, game_map: map.Map):
-        self.map = game_map
+    def __init__(self):
         self.current_paths = []
 
         
@@ -44,3 +43,8 @@ class PathManager:
         imgui.Begin("Algorithm visualizaiton time", None, 0)
         imgui.Text(str(end_time - start_time) + " seconds.")
         imgui.End()
+
+    def set_map(self, game_map):
+        self.map = game_map
+
+manager = PathManager()

@@ -1,4 +1,4 @@
-import message, places
+import message, places, path_manager, a_star
 import nmath
 
 class WorkingState:
@@ -130,22 +130,31 @@ class DrinkingState:
 
 class MovingState:
     def begin_state(self, agent: object):
+        print("BEGINN")
         agent.place.agents_at_this_place -= 1
         agent.place = places.start_place
+
+        agent.path = path_manager.manager.create_path(a_star.AStar())
+        path_manager.manager.find_path(agent.path)
 
     def end_state(self, agent: object):
         pass
 
     def execute(self, agent: object):
         pos = nmath.Vec4(agent.position.x, agent.position.y, agent.position.z, 0)
-        v = agent.target.pos - pos
+        target_pos = agent.path.points[0]
+        v = nmath.Vec4(target_pos.x, 0, target_pos.y, 0) - pos
 
         agent.LowerStats()
 
         if v.length3_sq() < 0.2:
-            agent.place = agent.target
-            agent.place.agents_at_this_place += 1
-            return agent.EvalNextState()
+            if len(agent.path.points) > 0:
+                agent.path.points.pop(0)
+                return self
+            else:
+                agent.place = agent.target
+                agent.place.agents_at_this_place += 1
+                return agent.EvalNextState()
 
         v = nmath.Vec4.normalize(v)
         pos = pos + (v * 0.3)

@@ -1,4 +1,4 @@
-import demo
+import demo, nmath
 import agent, button_input
 
 class AgentManager:

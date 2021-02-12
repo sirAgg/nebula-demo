@@ -1,12 +1,15 @@
 import enum
 import numpy
 import demo, nmath
+import places
 
 class TileTypes(enum.auto):
     WALKABLE = 0
     WALL     = 1
     GOAL     = 2
     START    = 3
+    HOME     = 4
+    WORK     = 5
     
 class Map:
     def load_from_file(filename: str, pos: nmath.Float2):
@@ -26,7 +29,7 @@ class Map:
 
             for y, line in enumerate(lines):
                 for x, c in enumerate(line):
-                    if c == "0":
+                    if   c == "0":
                         map.board[y][x] = TileTypes.WALKABLE
                     elif c == "X":
                         map.board[y][x] = TileTypes.WALL
@@ -35,6 +38,13 @@ class Map:
                         map.board[y][x] = TileTypes.START
                     elif c == "G":
                         map.goal_pos    = nmath.Float2(x,y)
+                        map.board[y][x] = TileTypes.GOAL
+                    elif c == "H":
+                        places.manager.add_home(pos.x + x,pos.y + y)
+                        map.board[y][x] = TileTypes.GOAL
+                    elif c == "W":
+                        places.manager.add_work(pos.x + x,pos.y + y)
+                        map.board[y][x] = TileTypes.GOAL
                         map.board[y][x] = TileTypes.GOAL
                     elif not c == "\n":
                         assert False, "Unknown character in map file."
@@ -81,7 +91,8 @@ class Map:
             tl = False
             bl = False
 
-
+        # TODO move these into if statements above
+        # then all neighbours is garanteed to be walkable blocks
         neighbours.append(nmath.Float2( 1, 0))
         neighbours.append(nmath.Float2( 0, 1))
         neighbours.append(nmath.Float2(-1, 0))
