@@ -130,9 +130,8 @@ class DrinkingState:
 
 class MovingState:
     def begin_state(self, agent: object):
-        print("BEGINN")
+        print("BEGIN")
         agent.place.agents_at_this_place -= 1
-        agent.place = places.start_place
 
         agent.path = path_manager.manager.create_path(a_star.AStar())
         path_manager.manager.find_path(agent.path)
@@ -144,6 +143,7 @@ class MovingState:
         pos = nmath.Vec4(agent.position.x, agent.position.y, agent.position.z, 0)
         target_pos = agent.path.points[0]
         v = nmath.Vec4(target_pos.x, 0, target_pos.y, 0) - pos
+        print(v)
 
         agent.LowerStats()
 

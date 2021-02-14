@@ -1,4 +1,4 @@
-import state, message, places
+import state, message, places, path_manager
 import demo, nmath, imgui
 import math
 
@@ -25,11 +25,12 @@ class Agent:
     def __init__(self, home_place, work_place):
         self.home_place = home_place
         self.work_place = work_place
-        self.place = places.manager.start_place
+        self.place = self.home_place
 
         self.entity = demo.SpawnEntity("AgentEntity/agent")
         self.entity.WorldTransform = nmath.Mat4.scaling(0.1,0.1,0.1) * nmath.Mat4.rotation_y(-math.pi/2) * nmath.Mat4.translation(0,0.5,0)
         self.state = self.EvalNextState()
+        self.state.begin_state(self)
 
     def set_pos(self, pos: nmath.Point):
         x = pos.x
@@ -42,6 +43,7 @@ class Agent:
         s = self.state.execute(self)
 
         if s != self.state:
+            print("new state")
             self.state.end_state(self)
             self.state = s
             self.state.begin_state(self)
@@ -80,6 +82,9 @@ class Agent:
         except Exception as e:
             imgui.End()
             raise e
+
+        if self.path:
+            self.path.algorithm.visualize(self.path, path_manager.manager.map)
 
     def EvalNextState(self):
         if self.thirst < 30:

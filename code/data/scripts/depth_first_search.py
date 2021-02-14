@@ -13,6 +13,8 @@ class DepthFirstSearch:
         current_pos = path.points[-1]
         neighbours = game_map.get_neighbours(int(current_pos.x), int(current_pos.y))
         if game_map.get_f2(current_pos) == map.TileTypes.GOAL:
+            for i in range(len(path.points)):
+                path.points[i] = path.points[i] + game_map.pos
             return True
 
         for n in neighbours:

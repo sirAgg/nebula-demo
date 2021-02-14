@@ -37,9 +37,7 @@ class AStar:
             pos = list((int(current_pos.x),int(current_pos.y)))
 
             while pos[0] > 0:
-                reverse_path.append(nmath.Float2(pos[0], pos[1]))
-                #with open("astarlog.txt", "a") as f:
-                #    f.write(str(pos))
+                reverse_path.append(nmath.Float2(pos[0], pos[1]) + game_map.pos)
                 pos = self.parents[pos[0]][pos[1]]
 
             path.points = reverse_path
@@ -103,6 +101,5 @@ class AStar:
 
         prev_p = path.start_pos + game_map.pos
         for p in path.points:
-            p = p + game_map.pos
             demo.DrawLine(nmath.Point(p.x, 0.1, p.y), nmath.Point(prev_p.x, 0.1, prev_p.y), 4.0, nmath.Vec4(1,0,0,1))
             prev_p = p
