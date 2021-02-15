@@ -2,15 +2,18 @@ import demo, nmath
 from math import pi
 
 class Place:
-    def __init__(self, name, entity_name, pos: nmath.Vec4):
+    def __init__(self, name, entity_name, pos: nmath.Vec4, map_pos: nmath.Float2):
         self.name = name
         self.pos = pos
+        self.map_pos = map_pos
         self.agents_at_this_place = 0
         e = demo.SpawnEntity(entity_name)
         e.WorldTransform = nmath.Mat4.scaling(5,5,5) * nmath.Mat4.rotation_y(-pi/2) * nmath.Mat4.translation(pos.x, pos.y, pos.z)
 
+
     def __repr__(self):
         return self.name
+
 
 class PlaceManager:
     def __init__(self):
@@ -19,14 +22,14 @@ class PlaceManager:
         self.start_place = None
 
 
-    def add_home(self, x,y):
+    def add_home(self, x,y, map_x, map_y):
         print("added home")
-        self.home_places.append(Place("home", "StaticEnvironment/knob_plastic", nmath.Vec4(x, 0, y, 0)))
+        self.home_places.append(Place("home", "StaticEnvironment/knob_plastic", nmath.Vec4(x, 0, y, 0), nmath.Float2(map_x, map_y)))
 
     
-    def add_work(self, x,y):
+    def add_work(self, x,y, map_x, map_y):
         print("added work")
-        self.work_places.append(Place("work", "StaticEnvironment/knob_reflective", nmath.Vec4(x, 0, y, 0)))
+        self.work_places.append(Place("work", "StaticEnvironment/knob_reflective", nmath.Vec4(x, 0, y, 0), nmath.Float2(map_x, map_y)))
 
 
     def get_home(self):

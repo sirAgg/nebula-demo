@@ -8,8 +8,6 @@ class TileTypes(enum.auto):
     WALL     = 1
     GOAL     = 2
     START    = 3
-    HOME     = 4
-    WORK     = 5
     
 class Map:
     def load_from_file(filename: str, pos: nmath.Float2):
@@ -40,11 +38,10 @@ class Map:
                         map.goal_pos    = nmath.Float2(x,y)
                         map.board[y][x] = TileTypes.GOAL
                     elif c == "H":
-                        places.manager.add_home(pos.x + x,pos.y + y)
+                        places.manager.add_home(pos.x + x,pos.y + y, x, y)
                         map.board[y][x] = TileTypes.GOAL
                     elif c == "W":
-                        places.manager.add_work(pos.x + x,pos.y + y)
-                        map.board[y][x] = TileTypes.GOAL
+                        places.manager.add_work(pos.x + x,pos.y + y, x, y)
                         map.board[y][x] = TileTypes.GOAL
                     elif not c == "\n":
                         assert False, "Unknown character in map file."

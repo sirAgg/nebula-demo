@@ -29,6 +29,9 @@ class Agent:
 
         self.entity = demo.SpawnEntity("AgentEntity/agent")
         self.entity.WorldTransform = nmath.Mat4.scaling(0.1,0.1,0.1) * nmath.Mat4.rotation_y(-math.pi/2) * nmath.Mat4.translation(0,0.5,0)
+        a = self.entity.Agent
+        a.position = nmath.Point(1,0,1)
+        self.entity.Agent = a
         self.state = self.EvalNextState()
         self.state.begin_state(self)
 
@@ -83,8 +86,11 @@ class Agent:
             imgui.End()
             raise e
 
-        if self.path:
-            self.path.algorithm.visualize(self.path, path_manager.manager.map)
+        if self.path != None and len(self.path.points) > 1:
+            prev_p = self.path.points[0]
+            for p in self.path.points[1:]:
+                demo.DrawLine(nmath.Point(p.x, 0.1, p.y), nmath.Point(prev_p.x, 0.1, prev_p.y), 4.0, nmath.Vec4(1,0,0,1))
+                prev_p = p
 
     def EvalNextState(self):
         if self.thirst < 30:

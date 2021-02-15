@@ -15,8 +15,8 @@ class PathManager:
         self.current_paths = []
 
         
-    def create_path(self, algorithm):
-        path = Path(self.map.start_pos, self.map.goal_pos)
+    def create_path(self, algorithm, start_pos: nmath.Float2, goal_pos: nmath.Float2):
+        path = Path(start_pos, goal_pos)
         path.algorithm = algorithm
         path.algorithm.start(path, self.map)
         return path

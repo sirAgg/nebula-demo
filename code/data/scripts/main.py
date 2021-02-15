@@ -16,20 +16,20 @@ speed_down   = button_input.ButtonInput(demo.IsDowndown)
 
 paused = True
     
-m = map.Map.load_from_file("maps/Map4.txt", nmath.Float2(4,0))
+m = map.Map.load_from_file("maps/Map4.txt", nmath.Float2(0,0))
 m.create_geometry()
 
 path_manager.manager.set_map(m)
 
 path_m = path_manager.manager
-path_dfs = path_m.create_path(DepthFirstSearch())
-path_bfs = path_m.create_path(BreathFirstSearch())
-path_a   = path_m.create_path(AStar())
-path_m.find_path(path_dfs)
-path_m.find_path(path_bfs)
-path_m.find_path(path_a)
+#path_dfs = path_m.create_path(DepthFirstSearch())
+#path_bfs = path_m.create_path(BreathFirstSearch())
+#path_a   = path_m.create_path(AStar())
+#path_m.find_path(path_dfs)
+#path_m.find_path(path_bfs)
+#path_m.find_path(path_a)
 
-path = path_a
+#path = path_a
 #found_path = False
 
 agent_manager.manager.add_agent(agent.Agent(places.manager.get_home(), places.manager.get_work()))
