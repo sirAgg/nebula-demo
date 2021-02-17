@@ -12,9 +12,7 @@ class DepthFirstSearch:
     def step(self, path, game_map):
         current_pos = path.points[-1]
         neighbours = game_map.get_neighbours(int(current_pos.x), int(current_pos.y))
-        if game_map.get_f2(current_pos) == map.TileTypes.GOAL:
-            for i in range(len(path.points)):
-                path.points[i] = path.points[i] + game_map.pos
+        if game_map.get_f2(current_pos) == map.TileTypes.GOAL and current_pos == path.goal_pos:
             return True
 
         for n in neighbours:
@@ -33,10 +31,9 @@ class DepthFirstSearch:
         return "Depth first search"
 
 
-    def visualize(self, path, game_map):
-        prev_p = path.start_pos + game_map.pos
+    def visualize(self, path):
+        prev_p = path.start_pos
         for p in path.points:
-            p = p + game_map.pos
             demo.DrawDot(nmath.Point(p.x, 0.1, p.y), 10.0, nmath.Vec4(0,0,1,1))
             demo.DrawLine(nmath.Point(p.x, 0.1, p.y), nmath.Point(prev_p.x, 0.1, prev_p.y), 4.0, nmath.Vec4(1,0,0,1))
             prev_p = p

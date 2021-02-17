@@ -33,16 +33,8 @@ class PathManager:
             pass
 
         end_time = time.time()
-        print(str(path.algorithm) + " took " + str(end_time - start_time) + " seconds.")
-
-
-    def visualize_path(self, path):
-        start_time = time.time()
-        path.algorithm.visualize(path, self.map)
-        end_time = time.time()
-        imgui.Begin("Algorithm visualizaiton time", None, 0)
-        imgui.Text(str(end_time - start_time) + " seconds.")
-        imgui.End()
+        #print(str(path.algorithm) + " took " + str(end_time - start_time) + " seconds.")
+        return end_time - start_time
 
     def set_map(self, game_map):
         self.map = game_map

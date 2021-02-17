@@ -1,4 +1,4 @@
-import message, places, path_manager, a_star
+import message, places, path_manager, a_star, breath_first_search, depth_first_search
 import nmath
 
 class WorkingState:
@@ -133,9 +133,11 @@ class MovingState:
         agent.place.agents_at_this_place -= 1
 
         start_pos = nmath.Float2(agent.entity.Agent.position.x, agent.entity.Agent.position.y)
-        goal_pos = agent.target.map_pos
+        goal_pos  = agent.target.map_pos
 
-        agent.path = path_manager.manager.create_path(a_star.AStar(), start_pos, goal_pos)
+        print("goal pos: " + str(goal_pos))
+
+        agent.path = path_manager.manager.create_path(depth_first_search.DepthFirstSearch(), start_pos, goal_pos)
         path_manager.manager.find_path(agent.path)
 
 

@@ -87,10 +87,11 @@ class Agent:
             raise e
 
         if self.path != None and len(self.path.points) > 1:
-            prev_p = self.path.points[0]
-            for p in self.path.points[1:]:
-                demo.DrawLine(nmath.Point(p.x, 0.1, p.y), nmath.Point(prev_p.x, 0.1, prev_p.y), 4.0, nmath.Vec4(1,0,0,1))
-                prev_p = p
+            self.path.algorithm.visualize(self.path, path_manager.manager.map)
+            #prev_p = self.path.points[0]
+            #for p in self.path.points[1:]:
+            #    demo.DrawLine(nmath.Point(p.x, 0.1, p.y), nmath.Point(prev_p.x, 0.1, prev_p.y), 4.0, nmath.Vec4(1,0,0,1))
+            #    prev_p = p
 
     def EvalNextState(self):
         if self.thirst < 30:

@@ -1,10 +1,41 @@
-import agent, agent_manager, message, button_input, map, path_manager, places
+import button_input, map, path_manager
 import math
 import nmath
 
 from depth_first_search  import *
-from breath_first_search import *
+from breadth_first_search import *
 from a_star import *
+from wall_search import *
+
+N_TESTS = 100
+
+def test_all_algorithms_on_map(map_name):
+    m = map.Map.load_from_file(map_name)
+    path_m = path_manager.manager
+    path_m.set_map(m)
+    algorithms = [ DepthFirstSearch, BreadthFirstSearch, AStar, WallSearch ]
+    times = [0]*4
+
+    for _ in range(N_TESTS):
+        for i, algorithm in enumerate(algorithms):
+            path = path_m.create_path(algorithm(), m.start_pos, m.goal_pos)
+            times[i] += path_m.find_path(path)
+
+    with open("times.txt", "a") as f:
+        f.write("-" * 7 + " MAP: " + map_name + "-"*7 + "\n")
+        for i,algorithm in enumerate(algorithms):
+            name = algorithm.__repr__(None)
+            j = 40 - len(name)
+            f.write( name + " took " + " " * j + str(times[i]/N_TESTS) + " seconds.\n")
+
+
+def run_tests():
+    test_all_algorithms_on_map("maps/Map1.txt")
+    test_all_algorithms_on_map("maps/Map2.txt")
+    test_all_algorithms_on_map("maps/Map3.txt")
+    print("Tests written to times.txt")
+
+
 
 time = 0
 time_speeds = [1,2,4,8,15,30,60]
@@ -14,38 +45,25 @@ pause_button = button_input.ButtonInput(demo.IsPdown)
 speed_up     = button_input.ButtonInput(demo.IsUpdown)
 speed_down   = button_input.ButtonInput(demo.IsDowndown)
 
-paused = True
-    
-m = map.Map.load_from_file("maps/Map4.txt", nmath.Float2(0,0))
+paused = False
+
+m = map.Map.load_from_file("maps/Map1.txt")
+
 m.create_geometry()
 
 path_manager.manager.set_map(m)
+path = None
+found_path = True
 
-path_m = path_manager.manager
-#path_dfs = path_m.create_path(DepthFirstSearch())
-#path_bfs = path_m.create_path(BreathFirstSearch())
-#path_a   = path_m.create_path(AStar())
-#path_m.find_path(path_dfs)
-#path_m.find_path(path_bfs)
-#path_m.find_path(path_a)
-
-#path = path_a
-#found_path = False
-
-agent_manager.manager.add_agent(agent.Agent(places.manager.get_home(), places.manager.get_work()))
-#agent_manager.manager.add_agent(agent.Agent(places.home2, places.work_factory))
-#agent_manager.manager.add_agent(agent.Agent(places.home3, places.work_office))
-#agent_manager.manager.add_agent(agent.Agent(places.home4, places.work_office))
-#agent_manager.manager.add_agent(agent.Agent(places.home5, places.work_krysset))
-#agent_manager.manager.add_agent(agent.Agent(places.home6, places.work_krysset))
-
-s_agent = None
-
+def run_path(algorithm):
+    global path, found_path
+    path = path_manager.manager.create_path(algorithm, m.start_pos, m.goal_pos)
+    found_path = False
 
 # Runs once every frame
 def NebulaUpdate():
 
-    global time, paused, selected_time, s_agent, found_path
+    global time, paused, selected_time, found_path
 
     if pause_button.pressed():
         paused = not paused
@@ -66,35 +84,16 @@ def NebulaUpdate():
         return
 
     if time <= 0:
-        agent_manager.manager.update()
-        message.handler.distribute_messages()
-        
-        s_agent = agent_manager.manager.get_selected_agent()
 
-#        if not found_path:
-#            if path_m.step_path(path):
-#                print("Done")
-#                found_path = True
+        if not found_path:
+            if path_manager.manager.step_path(path):
+                print("Done")
+                found_path = True
 
         time = time_speeds[selected_time]
     time -= 1
 
 # Runs one every frame when it's time to draw
 def NebulaDraw():
-    #path_m.visualize_path(path)
-
-    agent_manager.manager.draw()
-
-    #members = [(attr, getattr(path.algorithm,attr)) for attr in dir(path.algorithm) if not callable(getattr(path.algorithm,attr)) and not attr.startswith("__")]
-
-    #imgui.Begin(str(path.algorithm), None, 0)
-    #try:
-
-    #    for member, value in members:
-    #        imgui.Text(member + ": " + str(value))
-
-    #    imgui.End()
-
-    #except Exception as e:
-    #    imgui.End()
-    #    raise e
+    if path:
+        path.algorithm.visualize(path)

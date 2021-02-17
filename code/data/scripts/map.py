@@ -10,10 +10,9 @@ class TileTypes(enum.auto):
     START    = 3
     
 class Map:
-    def load_from_file(filename: str, pos: nmath.Float2):
+    def load_from_file(filename: str):
         with open(filename) as map_file:
             map = Map()
-            map.pos = pos
 
             lines = map_file.readlines()
             print(lines)
@@ -59,13 +58,13 @@ class Map:
             for x in range(self.width):
                 if self.get(x,y) == TileTypes.WALL:
                     e = demo.SpawnEntity("StaticEnvironment/placeholder_box")
-                    e.WorldTransform = nmath.Mat4.translation(x + self.pos.x,0.5,y + self.pos.y)
+                    e.WorldTransform = nmath.Mat4.translation(x,0.5,y)
                 elif self.get(x,y) == TileTypes.GOAL:
                     e = demo.SpawnEntity("StaticEnvironment/knob_plastic")
-                    e.WorldTransform = nmath.Mat4.translation(x + self.pos.x,0.1,y + self.pos.y)
+                    e.WorldTransform = nmath.Mat4.translation(x,0.1,y)
                 elif self.get(x,y) == TileTypes.START:
                     e = demo.SpawnEntity("StaticEnvironment/knob_reflective")
-                    e.WorldTransform = nmath.Mat4.translation(x + self.pos.x,0.1,y + self.pos.y)
+                    e.WorldTransform = nmath.Mat4.translation(x,0.1,y)
 
     def get_neighbours(self, x,y):
         neighbours = []

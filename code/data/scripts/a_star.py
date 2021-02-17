@@ -30,14 +30,14 @@ class AStar:
 
 
     def step(self, path, game_map):
-        current_pos  = self.open[0]
-                
-        if game_map.get_f2(current_pos) == map.TileTypes.GOAL:
+        current_pos = self.open.pop(0)
+                        
+        if game_map.get_f2(current_pos) == map.TileTypes.GOAL and current_pos == path.goal_pos:
             reverse_path = []
             pos = list((int(current_pos.x),int(current_pos.y)))
 
             while pos[0] > 0:
-                reverse_path.append(nmath.Float2(pos[0], pos[1]) + game_map.pos)
+                reverse_path.append(nmath.Float2(pos[0], pos[1]))
                 pos = self.parents[pos[0]][pos[1]]
 
             path.points = reverse_path
@@ -50,19 +50,19 @@ class AStar:
         for n in neighbours:
             p = current_pos + n
             if not game_map.get_f2(p) == map.TileTypes.WALL:
-                f_node = self.f_values[int(p.x)][int(p.y)]
+                prev_f_value = self.f_values[int(p.x)][int(p.y)]
                 if n.x == 0 or n.y == 0:
-                    f_value = AStar.euclidean_dist(game_map.goal_pos, p) +1
+                    f_value = AStar.euclidean_dist(path.goal_pos, p) +1
                 else:
-                    f_value = AStar.euclidean_dist(game_map.goal_pos, p) +1.42
+                    f_value = AStar.euclidean_dist(path.goal_pos, p) +1.42
 
-                if f_node <= 0 or f_node > f_value:
+                if prev_f_value <= 0 or prev_f_value > f_value:
                     self.f_values[int(p.x)][int(p.y)] = f_value
-                    if f_node <= 0:
+                    if prev_f_value <= 0:
                         self.parents[int(p.x)][int(p.y)] = (int(current_pos.x), int(current_pos.y))
                         self.open.append(p)
 
-        self.closed.append(self.open.pop(0))
+        self.closed.append(current_pos)
         self.open.sort(key= lambda e : self.f_values[int(e.x)][int(e.y)])
 
         return False
@@ -72,7 +72,7 @@ class AStar:
         return "A*"
 
 
-    def visualize(self, path, game_map):
+    def visualize(self, path):
         shape = self.f_values.shape
 
         max_f = self.f_values[0][0]
@@ -80,26 +80,26 @@ class AStar:
             for y in range(shape[1]):
                 if self.f_values[x][y] > max_f:
                     max_f = self.f_values[x][y]
+
         
         for o in self.closed:
-            demo.DrawDot(nmath.Point(o.x + game_map.pos.x,0.1,o.y + game_map.pos.y), 10, nmath.Vec4(0,0,1,1))
-            
-            #parent = self.parents[int(o.x)][int(o.y)]
-            #parent = nmath.Float2(parent[0], parent[1]) + game_map.pos
-            #p = o + game_map.pos
-            #demo.DrawLine(nmath.Point(p.x, 0.1, p.y), nmath.Point(parent.x, 0.1, parent.y), 4.0, nmath.Vec4(1,1,0,1))
+            parent = self.parents[int(o.x)][int(o.y)]
+            demo.DrawLine(nmath.Point(o.x, 0.1, o.y), nmath.Point(parent[0], 0.1, parent[1]), 4.0, nmath.Vec4(1,1,0,1))
+        
+        for o in self.open:
+            parent = self.parents[int(o.x)][int(o.y)]
+            demo.DrawLine(nmath.Point(o.x, 0.1, o.y), nmath.Point(parent[0], 0.1, parent[1]), 4.0, nmath.Vec4(1,1,0,1))
 
+
+        for o in self.closed:
+            demo.DrawDot(nmath.Point(o.x,0.1,o.y), 10, nmath.Vec4(0,0,1,1))
+            
         for o in self.open:
             f = self.f_values[int(o.x)][int(o.y)]
-            demo.DrawDot(nmath.Point(o.x + game_map.pos.x,0.1,o.y + game_map.pos.y), 10, nmath.Vec4(0,f/max_f,0,1))
+            demo.DrawDot(nmath.Point(o.x,0.1,o.y), 10, nmath.Vec4(0,f/max_f,0,1))
             
-            #parent = self.parents[int(o.x)][int(o.y)]
-            #parent = nmath.Float2(parent[0], parent[1]) + game_map.pos
-            #p = o + game_map.pos
-            #demo.DrawLine(nmath.Point(p.x, 0.1, p.y), nmath.Point(parent.x, 0.1, parent.y), 4.0, nmath.Vec4(1,1,0,1))
 
-
-        prev_p = path.start_pos + game_map.pos
+        prev_p = path.start_pos
         for p in path.points:
             demo.DrawLine(nmath.Point(p.x, 0.1, p.y), nmath.Point(prev_p.x, 0.1, prev_p.y), 4.0, nmath.Vec4(1,0,0,1))
             prev_p = p
