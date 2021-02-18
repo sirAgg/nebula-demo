@@ -17,11 +17,10 @@ class DepthFirstSearch:
 
         for n in neighbours:
             p = current_pos + n
-            if game_map.get_f2(p) != map.TileTypes.WALL:
-                if not self.visited_nodes[int(p.x)][int(p.y)]:
-                    path.points.append(p)
-                    self.visited_nodes[int(p.x)][int(p.y)] = True
-                    return False
+            if not self.visited_nodes[int(p.x)][int(p.y)]:
+                path.points.append(p)
+                self.visited_nodes[int(p.x)][int(p.y)] = True
+                return False
 
         path.points.pop()
         return False

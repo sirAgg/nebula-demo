@@ -77,30 +77,34 @@ class Map:
         if self.get(x + 0, y + 1) == TileTypes.WALL:
             br = False
             bl = False
+        else:
+            neighbours.append(nmath.Float2( 0, 1))
+
         if self.get(x + 0, y - 1) == TileTypes.WALL:
             tr = False
             tl = False
+        else:
+            neighbours.append(nmath.Float2( 0,-1))
+
         if self.get(x + 1, y + 0) == TileTypes.WALL:
             tr = False
             br = False
+        else:
+            neighbours.append(nmath.Float2( 1, 0))
+
         if self.get(x - 1, y + 0) == TileTypes.WALL:
             tl = False
             bl = False
+        else:
+            neighbours.append(nmath.Float2(-1, 0))
 
-        # TODO move these into if statements above
-        # then all neighbours is garanteed to be walkable blocks
-        neighbours.append(nmath.Float2( 1, 0))
-        neighbours.append(nmath.Float2( 0, 1))
-        neighbours.append(nmath.Float2(-1, 0))
-        neighbours.append(nmath.Float2( 0,-1))
-
-        if br:
+        if br and not self.get(x + 1, y + 1) == TileTypes.WALL:
             neighbours.append(nmath.Float2( 1, 1))
-        if bl:
+        if bl and not self.get(x - 1, y + 1) == TileTypes.WALL:
             neighbours.append(nmath.Float2(-1, 1))
-        if tr:
+        if tr and not self.get(x + 1, y - 1) == TileTypes.WALL:
             neighbours.append(nmath.Float2( 1,-1))
-        if tl:
+        if tl and not self.get(x - 1, y - 1) == TileTypes.WALL:
             neighbours.append(nmath.Float2(-1,-1))
 
         return neighbours

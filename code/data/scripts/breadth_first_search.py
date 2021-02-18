@@ -33,9 +33,8 @@ class BreadthFirstSearch:
         for n in neighbours:
             p = current_pos + n
             if not self.visited_nodes[int(p.x)][int(p.y)]:
-                if game_map.get_f2(p) != map.TileTypes.WALL:
-                    self.queue.append((p, self.queue_idx))
-                    self.visited_nodes[int(p.x)][int(p.y)] = True
+                self.queue.append((p, self.queue_idx))
+                self.visited_nodes[int(p.x)][int(p.y)] = True
 
         self.queue_idx += 1
         return False

@@ -6,8 +6,17 @@ def euclidean_dist(a, b):
     return math.sqrt((a.x - b.x)**2 + (a.y - b.y)**2)
 
     
-def find_best_neighbour(game_map, current_pos, goal_pos):
-    neighbours = game_map.get_neighbours(int(current_pos.x), int(current_pos.y))
+def find_best_neighbour(current_pos, goal_pos):
+    neighbours = [\
+            nmath.Float2(1,1),\
+            nmath.Float2(-1,1),\
+            nmath.Float2(1,-1),\
+            nmath.Float2(-1,-1),\
+            nmath.Float2(1,0),\
+            nmath.Float2(0,1),\
+            nmath.Float2(-1,0),\
+            nmath.Float2(0,-1)]\
+
     best = neighbours[0] + current_pos
     best_distance = euclidean_dist(neighbours[0] + current_pos, goal_pos)
     for n in neighbours[1:]:
@@ -29,7 +38,7 @@ def walking_straight(ws, path, game_map):
     current_pos = path.points[-1]
 
 
-    best = find_best_neighbour(game_map, current_pos, path.goal_pos)
+    best = find_best_neighbour(current_pos, path.goal_pos)
 
     if game_map.get_f2(best) == map.TileTypes.WALL:
         ws.next_pos = best
@@ -65,25 +74,8 @@ def walking_straight(ws, path, game_map):
 
 def finding_other_side_of_wall(ws, path, game_map):
     current_pos = ws.next_pos
-    neighbours = [\
-            nmath.Float2(1,1),\
-            nmath.Float2(-1,1),\
-            nmath.Float2(1,-1),\
-            nmath.Float2(-1,-1),\
-            nmath.Float2(1,0),\
-            nmath.Float2(0,1),\
-            nmath.Float2(-1,0),\
-            nmath.Float2(0,-1)]\
 
-    best = neighbours[0] + current_pos
-    best_distance = euclidean_dist(neighbours[0] + current_pos, game_map.goal_pos)
-    for n in neighbours[1:]:
-        p = n + current_pos
-        distance = euclidean_dist(p, game_map.goal_pos)
-        if distance < best_distance:
-            best_distance = distance
-            best = p
-
+    best = find_best_neighbour(current_pos, game_map.goal_pos)
     ws.next_pos = best
 
     if game_map.get_f2(best) == map.TileTypes.WALL:

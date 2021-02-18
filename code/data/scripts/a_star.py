@@ -18,20 +18,24 @@ class AStar:
     def euclidean_dist(a, b):
         return math.sqrt((a.x - b.x)**2 + (a.y - b.y)**2)
 
+    def diagonal_dist(a, b):
+        return max(abs(a.x - b.x),abs(a.y - b.y))
+
 
     def start(self, path, game_map):
         self.open = []
         self.closed = []
         self.open.append(path.start_pos)
         self.f_values = numpy.zeros((game_map.width, game_map.height), dtype=numpy.float)
-        self.f_values[int(path.start_pos.x)][int(path.start_pos.y)] = AStar.manhattan_dist(game_map.goal_pos, path.start_pos)
+        self.f_values[int(path.start_pos.x)][int(path.start_pos.y)] = AStar.diagonal_dist(game_map.goal_pos, path.start_pos)
+        self.g_values = numpy.zeros((game_map.width, game_map.height), dtype=numpy.float)
         self.parents = numpy.zeros((game_map.width, game_map.height), dtype=numpy.dtype((numpy.int,2)))
         self.parents[int(path.start_pos.x)][int(path.start_pos.y)] = (-1,-1)
 
 
     def step(self, path, game_map):
         current_pos = self.open.pop(0)
-                        
+
         if game_map.get_f2(current_pos) == map.TileTypes.GOAL and current_pos == path.goal_pos:
             reverse_path = []
             pos = list((int(current_pos.x),int(current_pos.y)))
@@ -45,22 +49,29 @@ class AStar:
             return True
 
 
+        current_g_value = self.g_values[int(current_pos.x)][int(current_pos.y)]
+        current_f_value = self.f_values[int(current_pos.x)][int(current_pos.y)]
+        print(current_f_value)
         neighbours = game_map.get_neighbours(int(current_pos.x), int(current_pos.y))
 
         for n in neighbours:
             p = current_pos + n
-            if not game_map.get_f2(p) == map.TileTypes.WALL:
-                prev_f_value = self.f_values[int(p.x)][int(p.y)]
-                if n.x == 0 or n.y == 0:
-                    f_value = AStar.euclidean_dist(path.goal_pos, p) +1
-                else:
-                    f_value = AStar.euclidean_dist(path.goal_pos, p) +1.42
+            prev_g_value = self.f_values[int(p.x)][int(p.y)]
 
-                if prev_f_value <= 0 or prev_f_value > f_value:
-                    self.f_values[int(p.x)][int(p.y)] = f_value
-                    if prev_f_value <= 0:
-                        self.parents[int(p.x)][int(p.y)] = (int(current_pos.x), int(current_pos.y))
-                        self.open.append(p)
+            if n.x == 0 or n.y == 0:
+                g_value = 1
+            else:
+                g_value = 1.4
+
+            h_value = AStar.diagonal_dist(path.goal_pos, p)
+            f_value = g_value + h_value
+
+            if prev_g_value <= 0 or prev_g_value > g_value:
+                self.f_values[int(p.x)][int(p.y)] = f_value
+                self.g_values[int(p.x)][int(p.y)] = g_value
+                if prev_g_value <= 0:
+                    self.parents[int(p.x)][int(p.y)] = (int(current_pos.x), int(current_pos.y))
+                    self.open.append(p)
 
         self.closed.append(current_pos)
         self.open.sort(key= lambda e : self.f_values[int(e.x)][int(e.y)])

@@ -33,7 +33,9 @@ def run_tests():
     test_all_algorithms_on_map("maps/Map1.txt")
     test_all_algorithms_on_map("maps/Map2.txt")
     test_all_algorithms_on_map("maps/Map3.txt")
+    test_all_algorithms_on_map("maps/Map4.txt")
     print("Tests written to times.txt")
+    path_manager.manager.set_map(m)
 
 
 
@@ -47,7 +49,7 @@ speed_down   = button_input.ButtonInput(demo.IsDowndown)
 
 paused = False
 
-m = map.Map.load_from_file("maps/Map1.txt")
+m = map.Map.load_from_file("maps/Map4.txt")
 
 m.create_geometry()
 
