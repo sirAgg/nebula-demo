@@ -50,8 +50,6 @@ class AStar:
 
 
         current_g_value = self.g_values[int(current_pos.x)][int(current_pos.y)]
-        current_f_value = self.f_values[int(current_pos.x)][int(current_pos.y)]
-        print(current_f_value)
         neighbours = game_map.get_neighbours(int(current_pos.x), int(current_pos.y))
 
         for n in neighbours:

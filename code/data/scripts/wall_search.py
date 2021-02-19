@@ -176,7 +176,6 @@ class WallSearch:
     def step(self, path, game_map):
         self.state = self.state(self, path, game_map)
         return path.points[-1] == path.goal_pos
-        
 
      
     def __repr__(self):
