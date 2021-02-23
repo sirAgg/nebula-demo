@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<Nebula version="4">
+    <Model name="dev/guy" bboxcenter="0.000000,0.772936,0.000000,1.000000" bboxextents="0.118727,0.772540,0.475200,0.000000">
+        <ShapeNodes>
+            <ShapeNode name="Cube.001:0" type="static" path="root/Cube.001:0" useLOD="false" primitive="0" position="0.000000,0.000000,0.000000,1.000000" rotation="0.000000,0.000000,0.000000,1.000000" scale="1.000000,1.000000,1.000000,0.000000" mesh="msh:dev/guy.nvx2" bboxcenter="0.000000,0.772936,0.000000,1.000000" bboxextents="0.118727,0.772540,0.475200,0.000000" />
+        </ShapeNodes>
+    </Model>
+</Nebula>

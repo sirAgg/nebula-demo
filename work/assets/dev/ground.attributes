@@ -8,5 +8,6 @@
                 <Texture name="NormalMap" value="tex:system/nobump" />
             </Textures>
         </ModelNode>
+        <ModelNode name="root/Plane.005:0" material="sur:dev/ground_gltf/ground" />
     </States>
 </Nebula>

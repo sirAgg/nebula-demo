@@ -101,15 +101,20 @@ GameStateManager::OnActivate()
         Preload("mdl:dev/knob_reflective.n3");
         Preload("mdl:dev/scene.n3");
         Preload("mdl:dev/tree.n3");
+        Preload("mdl:dev/mountain.n3");
+        Preload("mdl:dev/water.n3");
+        Preload("mdl:dev/ground.n3");
+        Preload("mdl:dev/quagmire.n3");
+        Preload("mdl:dev/guy.n3");
 
     } // #################################
 
-    {
-        Game::EntityCreateInfo info;
-        info.immediate = true;
-        info.templateId = Game::GetTemplateId("StaticGroundPlane/dev_ground_plane"_atm);
-        Game::CreateEntity(info);
-    }
+    //{
+    //    Game::EntityCreateInfo info;
+    //    info.immediate = true;
+    //    info.templateId = Game::GetTemplateId("StaticGroundPlane/dev_ground_plane"_atm);
+    //    Game::CreateEntity(info);
+    //}
     //{
     //    Game::EntityCreateInfo info;
     //    info.immediate = true;

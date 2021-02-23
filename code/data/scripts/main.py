@@ -49,7 +49,7 @@ speed_down   = button_input.ButtonInput(demo.IsDowndown)
 
 paused = False
 
-m = map.Map.load_from_file("maps/Map2.txt")
+m = map.Map.load_from_file("maps/lab3_map.txt")
 
 m.create_geometry()
 

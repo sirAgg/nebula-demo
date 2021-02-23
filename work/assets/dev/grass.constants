@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<Nebula version="4">
+    <Model name="dev/grass" bboxcenter="0.000000,0.000000,0.000000,1.000000" bboxextents="1.000000,0.000000,1.000000,0.000000">
+        <ShapeNodes>
+            <ShapeNode name="Plane.005:0" type="static" path="root/Plane.005:0" useLOD="false" primitive="0" position="0.000000,0.000000,0.000000,1.000000" rotation="0.000000,0.000000,0.000000,1.000000" scale="0.500000,0.500000,0.500000,0.000000" mesh="msh:dev/grass.nvx2" bboxcenter="0.000000,0.000000,0.000000,1.000000" bboxextents="1.000000,0.000000,1.000000,0.000000" />
+        </ShapeNodes>
+    </Model>
+</Nebula>
