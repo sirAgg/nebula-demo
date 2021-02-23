@@ -57,8 +57,8 @@ class Map:
         for y in range(self.height):
             for x in range(self.width):
                 if self.get(x,y) == TileTypes.WALL:
-                    e = demo.SpawnEntity("StaticEnvironment/placeholder_box")
-                    e.WorldTransform = nmath.Mat4.translation(x,0.5,y)
+                    e = demo.SpawnEntity("StaticEnvironment/tree")
+                    e.WorldTransform = nmath.Mat4.scaling(0.4,0.4,0.4) * nmath.Mat4.translation(x,0,y)
                 elif self.get(x,y) == TileTypes.GOAL:
                     e = demo.SpawnEntity("StaticEnvironment/knob_plastic")
                     e.WorldTransform = nmath.Mat4.translation(x,0.1,y)

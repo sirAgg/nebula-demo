@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<Nebula version="1">
+    <Options exportFlags="0" exportMode="0" scale="1.000000" />
+    <States>
+        <ModelNode name="root/Cone:0" material="sur:dev/tree_gltf/Material.001" />
+    </States>
+</Nebula>

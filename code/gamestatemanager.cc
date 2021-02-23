@@ -100,6 +100,8 @@ GameStateManager::OnActivate()
         Preload("mdl:dev/knob_plastic_scuffed.n3");
         Preload("mdl:dev/knob_reflective.n3");
         Preload("mdl:dev/scene.n3");
+        Preload("mdl:dev/tree.n3");
+
     } // #################################
 
     {
@@ -125,7 +127,7 @@ GameStateManager::OnActivate()
     //{
     //    Game::EntityCreateInfo info;
     //    info.immediate = true;
-    //    info.templateId = Game::GetTemplateId("StaticEnvironment/knob_reflective"_atm);
+    //    info.templateId = Game::GetTemplateId("StaticEnvironment/tree"_atm);
     //    Game::Entity entity = Game::CreateEntity(info);
     //    Game::SetProperty(entity, Game::GetPropertyId("WorldTransform"_atm), Math::scaling(5, 5, 5) * Math::translation({ 3, 0, 0 }));
     //}

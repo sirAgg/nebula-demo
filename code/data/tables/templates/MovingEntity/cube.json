@@ -1,6 +1,6 @@
 {
     "blueprint": "MovingEntity",
     "properties": {
-        "ModelResource": "mdl:system/placeholder.n3"
+        "ModelResource": "mdl:dev/tree.n3"
     }
 }
