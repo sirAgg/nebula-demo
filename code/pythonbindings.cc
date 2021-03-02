@@ -127,9 +127,10 @@ PYBIND11_EMBEDDED_MODULE(demo, m)
     m.def("SetCameraPos", [](Math::point p){Demo::PlayerManager::Instance()->set_target_pos(p);});
 
 
-    m.def("GetFrameTime", [](){return Game::TimeManager::GetTimeSource(TIMESOURCE_GAMEPLAY)->frameTime;});
-    m.def("PauseTime",    [](){return Game::TimeManager::GetTimeSource(TIMESOURCE_GAMEPLAY)->pauseCounter++;});
-    m.def("UnPauseTime",  [](){return Game::TimeManager::GetTimeSource(TIMESOURCE_GAMEPLAY)->pauseCounter--;});
+    m.def("GetFrameTime",  [](){return Game::TimeManager::GetTimeSource(TIMESOURCE_GAMEPLAY)->frameTime;});
+    m.def("PauseTime",     [](){Game::TimeManager::GetTimeSource(TIMESOURCE_GAMEPLAY)->pauseCounter++;});
+    m.def("UnPauseTime",   [](){Game::TimeManager::GetTimeSource(TIMESOURCE_GAMEPLAY)->pauseCounter--;});
+    m.def("SetTimeFactor", [](float factor){Game::TimeManager::GetTimeSource(TIMESOURCE_GAMEPLAY)->timeFactor = factor;});
 
     m.def("IsTabDown", []()
             {

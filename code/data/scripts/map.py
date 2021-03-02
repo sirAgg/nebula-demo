@@ -11,10 +11,10 @@ class TileTypes(enum.auto):
     WATER    = 0b10110000
     QUAGMIRE = 0b01000000
     TREE     = 0b01010000
-    GOAL     = 0b01100000
+    GOAL     = 0b01000000
     START    = 0b01110000
 
-    def is_walkable(t):
+    def is_unwalkable(t):
         return t & 0b10000000
 
     def type(t):
@@ -52,6 +52,9 @@ class Map:
                         map.board[y][x] = TileTypes.WATER
                     elif c == "G":
                         map.board[y][x] = TileTypes.QUAGMIRE
+                        map.goal_pos  = nmath.Float2(x,y)
+                    elif c == "S":
+                        map.start_pos = nmath.Float2(x,y)
                     elif c == "B":
                         map.board[y][x] = TileTypes.MOUNTAIN
                     elif c == "M":
@@ -74,7 +77,7 @@ class Map:
         e.WorldTransform = nmath.Mat4.rotation_y(math.pi/2) * nmath.Mat4.translation(3,0,3)
         for y in range(self.height):
             for x in range(self.width):
-                if self.get(x,y) == TileTypes.MOUNTAIN:
+                if self.get(x,y) == TileTypes.MOUNTAIN or self.get(x,y) == TileTypes.WALL:
                     e = demo.SpawnEntity("StaticEnvironment/mountain")
                     e.WorldTransform = nmath.Mat4.translation(x,-0.5,y)
                 elif TileTypes.type(self.get(x,y)) == TileTypes.TREE:
@@ -135,5 +138,21 @@ class Map:
             neighbours.append(nmath.Float2(-1,-1))
 
         return neighbours
+
+    def check_neighbour(self, x, y, n_x, n_y):
+        sx = x+n_x
+        sy = y+n_y
+        if TileTypes.is_unwalkable(self.get(sx,sy)):
+            return False
+        
+        if n_x == 0 or n_y == 0:
+            return True
+
+        if TileTypes.is_unwalkable(self.get(x,sy)):
+            return False
+        
+        if TileTypes.is_unwalkable(self.get(sx,y)):
+            return False
+            
 
 

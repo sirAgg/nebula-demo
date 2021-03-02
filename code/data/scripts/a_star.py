@@ -4,6 +4,7 @@ import map
 import time
 import math
 
+neighbours = [(1,1),(-1,1),(1,-1),(-1,-1),(1,0),(0,1),(-1,0),(0,-1)]
 
 class AStar:
     class ANode:
@@ -25,7 +26,7 @@ class AStar:
     def start(self, path, game_map):
         self.open = []
         self.closed = []
-        self.open.append((path.start_pos, AStar.diagonal_dist(game_map.goal_pos, path.start_pos) ))
+        self.open.append(path.start_pos)
         self.f_values = numpy.zeros((game_map.width, game_map.height), dtype=numpy.float)
         self.f_values[int(path.start_pos.x)][int(path.start_pos.y)] = AStar.diagonal_dist(game_map.goal_pos, path.start_pos)
         self.g_values = numpy.zeros((game_map.width, game_map.height), dtype=numpy.float)
@@ -34,7 +35,7 @@ class AStar:
 
 
     def step(self, path, game_map):
-        current_pos, current_f_value = self.open.pop(0)
+        current_pos = self.open.pop(0)
 
         if game_map.get_f2(current_pos) == map.TileTypes.GOAL and current_pos == path.goal_pos:
             reverse_path = []
@@ -50,31 +51,35 @@ class AStar:
 
 
         current_g_value = self.g_values[int(current_pos.x)][int(current_pos.y)]
-        neighbours = game_map.get_neighbours(int(current_pos.x), int(current_pos.y))
+        #neighbours = game_map.get_neighbours(int(current_pos.x), int(current_pos.y))
 
         for n in neighbours:
-            p = current_pos + n
+            if not game_map.check_neighbour(int(current_pos.x), int(current_pos.y), n[0], n[1]):
+                continue
+            p = current_pos + nmath.Float2(n[0], n[1])
+            
+            #p = current_pos + n
             prev_f_value = self.f_values[int(p.x)][int(p.y)]
 
-            if n.x == 0 or n.y == 0:
-                g_value = 1
+            if n[0] == 0 or n[1] == 0:
+            #if n.x == 0 or n.y == 0:
+                g_value = current_g_value + 1
             else:
-                g_value = 1.4
+                g_value = current_g_value + 1.4
 
             h_value = AStar.diagonal_dist(path.goal_pos, p)
             f_value = g_value + h_value
 
             if prev_f_value <= 0 or prev_f_value > f_value:
                 self.f_values[int(p.x)][int(p.y)] = f_value
-                #self.g_values[int(p.x)][int(p.y)] = g_value
+                self.g_values[int(p.x)][int(p.y)] = g_value
                 if prev_f_value <= 0:
                     self.parents[int(p.x)][int(p.y)] = (int(current_pos.x), int(current_pos.y))
-                    self.open.append((p, f_value))
+                    self.open.append(p)
 
         self.closed.append(current_pos)
 
-        #self.open.sort(key= lambda e : self.f_values[int(e.x)][int(e.y)])
-        self.open.sort(key= lambda e : e[1])
+        self.open.sort(key= lambda e : self.f_values[int(e.x)][int(e.y)])
 
         return False
 
@@ -98,7 +103,6 @@ class AStar:
             demo.DrawLine(nmath.Point(o.x, 0.1, o.y), nmath.Point(parent[0], 0.1, parent[1]), 4.0, nmath.Vec4(1,1,0,1))
         
         for o in self.open:
-            o = o[0]
             parent = self.parents[int(o.x)][int(o.y)]
             demo.DrawLine(nmath.Point(o.x, 0.1, o.y), nmath.Point(parent[0], 0.1, parent[1]), 4.0, nmath.Vec4(1,1,0,1))
 
@@ -107,7 +111,6 @@ class AStar:
             demo.DrawDot(nmath.Point(o.x,0.1,o.y), 10, nmath.Vec4(0,0,1,1))
             
         for o in self.open:
-            o = o[0]
             f = self.f_values[int(o.x)][int(o.y)]
             demo.DrawDot(nmath.Point(o.x,0.1,o.y), 10, nmath.Vec4(0,f/max_f,0,1))
             

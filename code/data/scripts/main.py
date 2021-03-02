@@ -2,6 +2,9 @@ import button_input, map, path_manager
 import math
 import nmath
 
+import cProfile
+import pstats
+
 from depth_first_search  import *
 from breadth_first_search import *
 from a_star import *
@@ -57,6 +60,7 @@ path_manager.manager.set_map(m)
 path = None
 found_path = True
 
+
 def run_path(algorithm):
     global path, found_path
     path = path_manager.manager.create_path(algorithm, m.start_pos, m.goal_pos)
@@ -99,3 +103,9 @@ def NebulaUpdate():
 def NebulaDraw():
     if path:
         path.algorithm.visualize(path)
+
+def profile_astar():
+    tp = path_manager.manager.create_path(AStar(), m.start_pos, m.goal_pos);
+    path_manager.manager.find_path(tp)
+
+cProfile.run("profile_astar()")
