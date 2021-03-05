@@ -1,4 +1,4 @@
-import map
+import map, a_star
 import numpy
 import nmath, imgui
 import time
@@ -8,6 +8,7 @@ class Path:
         self.points = []
         self.start_pos = start_pos
         self.goal_pos  = goal_pos
+        self.is_done = False
 
 
 class PathManager:
@@ -15,10 +16,12 @@ class PathManager:
         self.current_paths = []
 
         
-    def create_path(self, algorithm, start_pos: nmath.Float2, goal_pos: nmath.Float2):
+    def create_path(self, start_pos: nmath.Float2, goal_pos: nmath.Float2, done_callback):
         path = Path(start_pos, goal_pos)
-        path.algorithm = algorithm
+        path.algorithm = a_star.AStar()
         path.algorithm.start(path, self.map)
+        path.done_callback = done_callback
+        self.current_paths.append(path)
         return path
 
 
@@ -38,5 +41,24 @@ class PathManager:
 
     def set_map(self, game_map):
         self.map = game_map
+
+    def calc_paths(self, total_n_steps):
+
+        if len(self.current_paths) <= 0:
+            return
+
+        n_steps_per_path = total_n_steps // len(self.current_paths)
+        to_be_removed = []
+
+        for path in self.current_paths:
+            for _ in range(n_steps_per_path):
+                path.is_done = path.algorithm.step(path, self.map)
+                if path.is_done:
+                    to_be_removed.append(path)
+                    break
+
+        for path in to_be_removed:
+            self.current_paths.remove(path)
+            path.done_callback()
 
 manager = PathManager()

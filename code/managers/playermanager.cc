@@ -100,44 +100,7 @@ PlayerManager::OnActivate()
 void
 PlayerManager::OnBeginFrame()
 {
-    Demo::PlayerInput input = Game::GetProperty<Demo::PlayerInput>(Singleton->playerEntity, Game::GetPropertyId("PlayerInput"_atm));
-
-    if (input.spawn_marker)
-    {
-        Math::vec2 mouse_pos = Input::InputServer::Instance()->GetDefaultMouse()->GetScreenPosition();
-        GraphicsFeature::Camera camera = Game::GetProperty<GraphicsFeature::Camera>(Singleton->playerEntity, Game::GetPropertyId("Camera"_atm));
-        Math::mat4 world_transform = Game::GetProperty<Math::mat4>(Singleton->playerEntity, Game::GetPropertyId("WorldTransform"_atm));
-        const Math::mat4 view = world_transform * camera.localTransform;    
-        const Math::mat4 proj = GraphicsFeature::CameraManager::GetProjection(camera.viewHandle); // viewHandle might be invalid
-        Math::line ray = RenderUtil::MouseRayUtil::ComputeWorldMouseRay(
-            mouse_pos,
-            1000.0f,
-            Math::inverse(view),
-            Math::inverse(proj),
-            0.1f
-        );
-
-        Math::point p1 = ray.pointat(-1);
-        Math::point p2 = ray.pointat(0);
-
-        Math::plane pl = Math::plane({0,0,0}, {0,1,0}); // xz-plane
-        Math::point intersect_point;
-        Math::intersectline(pl, p1, p2, intersect_point);
-        
-        intersect_point.y += 0.1f;
-        Math::vec3 p = Math::vec3{intersect_point.x, intersect_point.y, intersect_point.z};
-        
-
-        Game::EntityCreateInfo info;
-        info.immediate = true;
-        info.templateId = Game::GetTemplateId("MarkerEntity/markerentity"_atm);
-        Game::Entity entity = Game::CreateEntity(info);
-        Math::vec3 new_pos = p + Math::vec3{0,0.5,0};
-        Demo::Marker m = {new_pos};
-        Game::SetProperty(entity, Game::GetPropertyId("WorldTransform"_atm), Math::translation(new_pos));
-        Game::SetProperty(entity, Game::GetPropertyId("Marker"_atm), m);
-    }
-
+     auto input = Game::GetProperty<Demo::PlayerInput>(Singleton->playerEntity, Game::GetPropertyId("PlayerInput"_atm));
     // Move
     float move_forward = input.forward*0.2f;
     float move_strafe  = input.strafe *0.2f;
@@ -159,7 +122,6 @@ PlayerManager::OnBeginFrame()
         Game::SetProperty<Math::mat4>(Singleton->playerEntity, Game::GetPropertyId("WorldTransform"_atm), Math::translation({pos.x, pos.y, pos.z}));
     }
 
-
     // Update camera rotation and height.
     // Development only
     Math::mat4 camera_local_transform = 
@@ -170,6 +132,11 @@ PlayerManager::OnBeginFrame()
     GraphicsFeature::Camera camera = Game::GetProperty<GraphicsFeature::Camera>(Singleton->playerEntity, Game::GetPropertyId("Camera"_atm));
     camera.localTransform = camera_local_transform;
     Game::SetProperty<GraphicsFeature::Camera>(Singleton->playerEntity, Game::GetPropertyId("Camera"_atm), camera);
+
+    if(input.scroll != 0)
+    {
+        Singleton->tdc.height += Singleton->tdc.height * 0.01 * input.scroll;
+    }
 }
 
 //------------------------------------------------------------------------------
@@ -195,6 +162,34 @@ PlayerManager::PlayerManager()
 PlayerManager::~PlayerManager()
 {
     // empty
+}
+    
+Math::vec3 PlayerManager::RayCastMousePos()
+{
+    Math::vec2 mouse_pos = Input::InputServer::Instance()->GetDefaultMouse()->GetScreenPosition();
+    GraphicsFeature::Camera camera = Game::GetProperty<GraphicsFeature::Camera>(Singleton->playerEntity, Game::GetPropertyId("Camera"_atm));
+    Math::mat4 world_transform = Game::GetProperty<Math::mat4>(Singleton->playerEntity, Game::GetPropertyId("WorldTransform"_atm));
+    const Math::mat4 view = world_transform * camera.localTransform;    
+    const Math::mat4 proj = GraphicsFeature::CameraManager::GetProjection(camera.viewHandle); // viewHandle might be invalid
+    Math::line ray = RenderUtil::MouseRayUtil::ComputeWorldMouseRay(
+        mouse_pos,
+        1000.0f,
+        Math::inverse(view),
+        Math::inverse(proj),
+        0.1f
+    );
+
+    Math::point p1 = ray.pointat(-1);
+    Math::point p2 = ray.pointat(0);
+
+    Math::plane pl = Math::plane({0,0,0}, {0,1,0}); // xz-plane
+    Math::point intersect_point;
+    Math::intersectline(pl, p1, p2, intersect_point);
+    
+    intersect_point.y += 0.1f;
+    Math::vec3 p = Math::vec3{intersect_point.x, intersect_point.y, intersect_point.z};
+    
+    return p;
 }
 
 } // namespace Game

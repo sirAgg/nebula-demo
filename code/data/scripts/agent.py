@@ -1,84 +1,93 @@
-import state, message, places, path_manager
+import state, message, places, path_manager, map
 import demo, nmath, imgui
 import math
 
+
 class Agent:
-
-    state = state.SleepingState()
-    shopping_list = []
-
-    tiredness     = 100
-    hunger        = 100
-    thirst        = 100
-    social_metric = 150
-    money         = 150
-    food_storage  = 7
-
-    position = nmath.Point(0,0.5,0)
-
-    made_plans = False
-    initiated_plans = False
-    n_agents_coming = 0
-
+    position   = nmath.Vec4(0,0.5,0,0)
+    target_pos = nmath.Vec4(0,0.5,0,0)
+    velocity   = nmath.Vec4(0,0,0,0)
     path = None
+    max_speed = 0.1
+    max_turn_rate = 0.05
+    is_walking = False
 
-    def __init__(self, home_place, work_place):
-        self.home_place = home_place
-        self.work_place = work_place
-        self.place = self.home_place
-
+    def __init__(self):
         self.entity = demo.SpawnEntity("AgentEntity/agent")
-        self.entity.WorldTransform = nmath.Mat4.scaling(0.1,0.1,0.1) * nmath.Mat4.rotation_y(-math.pi/2) * nmath.Mat4.translation(0,0.5,0)
+        self.entity.WorldTransform = nmath.Mat4.scaling(0.8,0.8,0.8) * nmath.Mat4.rotation_y(math.pi/2)
         a = self.entity.Agent
         a.position = nmath.Point(1,0,1)
         self.entity.Agent = a
-        self.state = self.EvalNextState()
-        self.state.begin_state(self)
 
     def set_pos(self, pos: nmath.Point):
-        x = pos.x
-        y = pos.y + 2.5
-        z = pos.z
-        self.entity.WorldTransform = nmath.Mat4.scaling(0.1,0.1,0.1) * nmath.Mat4.rotation_y(-math.pi/2) * nmath.Mat4.translation(x,y,z)
-
-    def update(self):
-
-        s = self.state.execute(self)
-
-        if s != self.state:
-            print("new state")
-            self.state.end_state(self)
-            self.state = s
-            self.state.begin_state(self)
-
-        if self.place:
-            if self.place.agents_at_this_place == 1:
-                self.social_metric -= 1
-            else: 
-                self.social_metric += (self.place.agents_at_this_place -1)
-        else:
-            self.social_metric -= 1
-
-        if self.social_metric > 400:
-            self.social_metric = 400
-
-        self.IsDead()
+        self.position = nmath.Vec4(pos.x, pos.y, pos.z, 0)
 
         a = self.entity.Agent
-        a.position = self.position
+        a.position = nmath.Point(self.position.x, self.position.y, self.position.z)
         self.entity.Agent = a
+
+    def set_target_pos(self, pos):
+        self.target_pos = nmath.Vec4(pos.x, pos.y, pos.z, 0)
+
+    def is_at_target(self):
+        return self.position == self.target_pos
+
+
+    def update(self):
+        if self.position != self.target_pos:
+
+            d = self.target_pos - self.position
+
+            if d.length3_sq() < 0.05:
+
+                if self.path != None and self.path.is_done and len(self.path.points) > 0:
+                    pos = self.path.points.pop(0)
+                    self.target_pos = nmath.Vec4(pos.x, 0, pos.y, 0)
+
+                else:
+                    self.set_pos(self.target_pos)
+            else:
+
+                
+                ground_speed_modifier = 1
+                tiletype = map.TileTypes.type(path_manager.manager.map.get(int(round(self.position.x)), int(round(self.position.z)))) # todo fix map access
+
+                if tiletype == map.TileTypes.type(map.TileTypes.TREE):
+                    ground_speed_modifier = 0.75
+                elif tiletype == map.TileTypes.type(map.TileTypes.QUAGMIRE):
+                    ground_speed_modifier = 0.50
+
+                desired_vel = nmath.Vec4.normalize(self.target_pos - self.position) * self.max_speed * ground_speed_modifier * demo.GetFrameTime()
+                v =  (desired_vel - self.velocity)
+                self.velocity = self.velocity + v
+
+                vp = nmath.Point(self.velocity.x, self.velocity.y, self.velocity.z)
+
+                self.entity.WorldTransform = nmath.Mat4.scaling(0.8,0.8,0.8) * nmath.Mat4.rotation_y(-math.pi/2) * nmath.Mat4.look_at_rh(nmath.Point(0,0,0), vp, nmath.Vector(0,1,0)) * nmath.Mat4.translation(self.position.x,self.position.y,self.position.z)
+                
+                self.set_pos(self.position + self.velocity)
+
+
+    def goto(self, goal_x, goal_y):
+        start = nmath.Float2(round(self.position.x), round(self.position.z))
+        goal  = nmath.Float2(goal_x, goal_y)
+        self.target_pos = nmath.Vec4(goal_x, 0, goal_y, 0)
+
+        self.path = path_manager.manager.create_path(start, goal, done_callback = self.begin_walking_path)
+
+    def begin_walking_path(self):
+        pos = self.path.points.pop(0)
+        self.target_pos = nmath.Vec4(pos.x, 0, pos.y, 0)
+
 
     def imguiDraw(self):
         members = [(attr, getattr(self,attr)) for attr in dir(self) if not callable(getattr(self,attr)) and not attr.startswith("__")]
-        imgui.Begin("Agent " + str(self.a_id), None, 0)
+        imgui.Begin("Agent ", None, 0)
 
         try:
 
             for member, value in members:
                 imgui.Text(member + ": " + str(value))
-            
-            if self.place:
-                imgui.Text("agents at this place: " + str(self.place.agents_at_this_place))
 
             imgui.End()
 
@@ -87,60 +96,11 @@ class Agent:
             raise e
 
         if self.path != None and len(self.path.points) > 1:
-            self.path.algorithm.visualize(self.path, path_manager.manager.map)
-            #prev_p = self.path.points[0]
-            #for p in self.path.points[1:]:
-            #    demo.DrawLine(nmath.Point(p.x, 0.1, p.y), nmath.Point(prev_p.x, 0.1, prev_p.y), 4.0, nmath.Vec4(1,0,0,1))
-            #    prev_p = p
-
-    def EvalNextState(self):
-        if self.thirst < 30:
-            return state.DrinkingState()
-        elif self.hunger < 50:
-            return state.EatingState()
-        elif self.tiredness < 40:
-            self.made_plans = False
-            required_sleep = 200 - self.tiredness
-            if self.place != self.home_place:
-                self.target = self.home_place
-                return state.MovingState()
-            elif self.thirst < required_sleep/2 + 4:
-                return state.DrinkingState()
-            elif self.hunger < required_sleep/2 + 4:
-                return state.EatingState()
-            else: 
-                return state.SleepingState()
-        elif self.initiated_plans or self.made_plans:
-            if self.initiated_plans:
-                self.initiated_plans = False
-            self.made_plans = True
-            if self.place != places.traversen:
-                self.target = places.traversen
-                return state.MovingState()
-            else:
-                return state.SocializeState()
-        elif self.social_metric < 150:
-            message.broadcast_msg(self.a_id, "Wanna hang out?")
-            self.initiated_plans = True
-            self.n_agents_coming = 0
-            if self.place != places.traversen:
-                self.target = places.traversen
-                return state.MovingState()
-            else:
-                return state.SocializeState()
-            
-        elif len(self.shopping_list) > 0:
-            if self.place != places.shop:
-                self.target = places.shop
-                return state.MovingState()
-            else:
-                return state.ShoppingState()
-        else:
-            if self.place != self.work_place:
-                self.target = self.work_place
-                return state.MovingState()
-            else:
-                return state.WorkingState()
+            #self.path.algorithm.visualize(self.path)
+            prev_p = self.path.points[0]
+            for p in self.path.points[1:]:
+                demo.DrawLine(nmath.Point(p.x, 0.1, p.y), nmath.Point(prev_p.x, 0.1, prev_p.y), 4.0, nmath.Vec4(1,0,0,1))
+                prev_p = p
 
     def receive_msg(self, message):
         if self.initiated_plans:
@@ -153,25 +113,3 @@ class Agent:
 
         else:
             self.state.handle_msg(self, message)
-
-
-    def LowerStats(self):
-        self.tiredness -= 1
-        self.hunger -= 1
-        self.thirst -= 1
-
-    def IsDead(self):
-        if self.hunger <= 0:
-            print("("+str(self.a_id)+") I'm dead of hunger in state " + str(self.state))
-            return True
-        elif self.thirst <= 0:
-            print("("+str(self.a_id)+") I'm dead of thirst in state " + str(self.state))
-            return True
-        elif self.tiredness <= 0:
-            print("("+str(self.a_id)+") I'm dead of tiredness in state " + str(self.state))
-            return True
-        elif self.social_metric <= 0:
-            print("("+str(self.a_id)+") I'm dead of loneliness in state " + str(self.state))
-            return True
-        else:
-            return False

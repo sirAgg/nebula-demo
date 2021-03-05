@@ -6,6 +6,9 @@ import math
 
 neighbours = [(1,1),(-1,1),(1,-1),(-1,-1),(1,0),(0,1),(-1,0),(0,-1)]
 
+def is_at(current_pos, goal_pos):
+    return abs(current_pos.x - goal_pos.x) < 0.1 and abs(current_pos.y - goal_pos.y) < 0.1
+
 class AStar:
     class ANode:
         def __init__(self, f_value: int, parent: nmath.Point):
@@ -37,7 +40,7 @@ class AStar:
     def step(self, path, game_map):
         current_pos = self.open.pop(0)
 
-        if game_map.get_f2(current_pos) == map.TileTypes.GOAL and current_pos == path.goal_pos:
+        if is_at(current_pos, path.goal_pos):
             reverse_path = []
             pos = list((int(current_pos.x),int(current_pos.y)))
 
@@ -53,6 +56,7 @@ class AStar:
         current_g_value = self.g_values[int(current_pos.x)][int(current_pos.y)]
         #neighbours = game_map.get_neighbours(int(current_pos.x), int(current_pos.y))
 
+
         for n in neighbours:
             if not game_map.check_neighbour(int(current_pos.x), int(current_pos.y), n[0], n[1]):
                 continue
@@ -63,9 +67,18 @@ class AStar:
 
             if n[0] == 0 or n[1] == 0:
             #if n.x == 0 or n.y == 0:
-                g_value = current_g_value + 1
+                g_value = 1
             else:
-                g_value = current_g_value + 1.4
+                g_value = 1.4
+
+            tiletype = map.TileTypes.type(game_map.get(int(p.x), int(p.y)))
+
+            if tiletype == map.TileTypes.type(map.TileTypes.TREE):
+                g_value *= 1.5
+            elif tiletype == map.TileTypes.type(map.TileTypes.QUAGMIRE):
+                g_value *= 2
+
+            g_value += current_g_value
 
             h_value = AStar.diagonal_dist(path.goal_pos, p)
             f_value = g_value + h_value

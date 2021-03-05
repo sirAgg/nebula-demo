@@ -64,10 +64,16 @@ PYBIND11_EMBEDDED_MODULE(demo, m)
                 Game::DeleteEntity(e);
             });
 
+    m.def("IsValid", [](Game::Entity& e)
+            {
+                return Game::IsValid(e);
+            });
+
     py::class_<Demo::PlayerInput>(m, "PlayerInput")
         .defReadWrite(Demo::PlayerInput, forward)
         .defReadWrite(Demo::PlayerInput, strafe)
-        .defReadWrite(Demo::PlayerInput, spawn_marker);
+        .defReadWrite(Demo::PlayerInput, left_mouse)
+        .defReadWrite(Demo::PlayerInput, right_mouse);
 
     py::class_<GraphicsFeature::Camera>(m, "Camera")
         .defReadWrite(GraphicsFeature::Camera, viewHandle)
@@ -127,10 +133,27 @@ PYBIND11_EMBEDDED_MODULE(demo, m)
     m.def("SetCameraPos", [](Math::point p){Demo::PlayerManager::Instance()->set_target_pos(p);});
 
 
+    m.def("GetTime",       [](){return Game::TimeManager::GetTimeSource(TIMESOURCE_GAMEPLAY)->time;});
     m.def("GetFrameTime",  [](){return Game::TimeManager::GetTimeSource(TIMESOURCE_GAMEPLAY)->frameTime;});
     m.def("PauseTime",     [](){Game::TimeManager::GetTimeSource(TIMESOURCE_GAMEPLAY)->pauseCounter++;});
     m.def("UnPauseTime",   [](){Game::TimeManager::GetTimeSource(TIMESOURCE_GAMEPLAY)->pauseCounter--;});
     m.def("SetTimeFactor", [](float factor){Game::TimeManager::GetTimeSource(TIMESOURCE_GAMEPLAY)->timeFactor = factor;});
+
+    m.def("IsLeftMouseDown", []() -> bool
+            {
+                 auto input = Game::GetProperty<Demo::PlayerInput>(Demo::PlayerManager::Instance()->get_player(), Game::GetPropertyId("PlayerInput"_atm));
+                 return input.left_mouse;
+            });
+    m.def("IsRightMouseDown", []() -> bool
+            {
+                 auto input = Game::GetProperty<Demo::PlayerInput>(Demo::PlayerManager::Instance()->get_player(), Game::GetPropertyId("PlayerInput"_atm));
+                 return input.right_mouse;
+            });
+    m.def("RayCastMousePos", []()
+            {
+                auto p = Demo::PlayerManager::RayCastMousePos();
+                return Math::point(p.vec);
+            });
 
     m.def("IsTabDown", []()
             {

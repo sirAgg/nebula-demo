@@ -10,9 +10,17 @@
                 "_type_"    : "char",
                 "_default_" : 0
             },
-            "spawn_marker": {
+            "left_mouse": {
                 "_type_"    : "bool",
                 "_default_" : false
+            },
+            "right_mouse": {
+                "_type_"    : "bool",
+                "_default_" : false
+            },
+            "scroll": {
+                "_type_"    : "char",
+                "_default_" : 0
             }
         },
         "TopdownCamera": {

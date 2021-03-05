@@ -1,4 +1,4 @@
-import message, places, path_manager, a_star, breath_first_search, depth_first_search
+import message, places, path_manager, a_star, breadth_first_search, depth_first_search
 import nmath
 
 class WorkingState:

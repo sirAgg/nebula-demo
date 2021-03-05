@@ -81,13 +81,20 @@ ProcessPlayerInput()
             {
                 input.forward = (char)io.KeysDown[Input::Key::W] - (char)io.KeysDown[Input::Key::S];
                 input.strafe  = (char)io.KeysDown[Input::Key::D] - (char)io.KeysDown[Input::Key::A];
-                //input.spawn_marker = mouse->ButtonPressed(Input::MouseButton::Code::LeftButton);
+                input.left_mouse  = mouse->ButtonPressed(Input::MouseButton::Code::LeftButton);
+                input.right_mouse = mouse->ButtonPressed(Input::MouseButton::Code::RightButton);
+                input.scroll  = (char)mouse->WheelForward();
+                if(mouse->WheelForward())  IO::Console::Instance()->Print("Forward");
+                if(mouse->WheelBackward()) IO::Console::Instance()->Print("Backward");
+
             }
             else
             {
                 input.forward = 0;
                 input.strafe  = 0;
-                input.spawn_marker = false;
+                input.left_mouse = false;
+                input.right_mouse = false;
+                input.scroll = 0;
             }
         }
     }

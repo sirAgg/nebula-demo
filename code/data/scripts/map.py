@@ -1,100 +1,138 @@
-import enum, math
+import enum, math, random
 import numpy
 import demo, nmath
-import places
+import places, item_manager
 
 class TileTypes(enum.auto):
     WALKABLE = 0
     GROUND   = 0
-    WALL     = 0b10000000
-    MOUNTAIN = 0b10010000
-    WATER    = 0b10110000
-    QUAGMIRE = 0b01000000
-    TREE     = 0b01010000
-    GOAL     = 0b01000000
-    START    = 0b01110000
+    WALL     = 0b0000000000010001
+    MOUNTAIN = 0b0000000000100001
+    WATER    = 0b0000000000110001
+    QUAGMIRE = 0b0000000001000000
+    TREE     = 0b0000000001010000
+    GOAL     = 0b0000000001100000
+    START    = 0b0000000001110000
+
 
     def is_unwalkable(t):
-        return t & 0b10000000
+        return t & 0b1
 
     def type(t):
-        return t & 0b01110000
+        return t & 0b0000000011110000
 
     def data(t):
-        return t & 0b00001111
+        return (t & 0b1111111100000000) >> 8
 
     def set_data(t, data):
-        return (t & 0b11110000) | data
+        return (t & 0b0000000011111111) | (data << 8)
+    
+    def is_cloud(t):
+        return t & 0b0000000000000010 > 0
+    def set_cloud(t):
+        return t | 0b0000000000000010
+    def unset_cloud(t):
+        return t & 0b1111111111111101
+
+    def __eq__(self, t):
+        return type(self) == type(t)
 
 class Map:
-    def load_from_file(filename: str):
+    def load_from_file(self, filename: str):
         with open(filename) as map_file:
-            map = Map()
 
             lines = map_file.readlines()
             h = len(lines)
             w = len(lines[0]) - 1 # -1 to avoid new line char
 
-            map.width = w
-            map.height = h
+            self.width = w
+            self.height = h
 
-            map.board = numpy.empty((h,w), dtype=numpy.uint8)
+            self.board = numpy.empty((h,w), dtype=numpy.uint16)
+            self.entities = [[None for y in range(h)] for x in range(w)]
 
             for y, line in enumerate(lines):
                 for x, c in enumerate(line):
                     if   c == "0":
-                        map.board[y][x] = TileTypes.WALKABLE
+                        self.board[y][x] = TileTypes.WALKABLE
                     elif c == "X":
-                        map.board[y][x] = TileTypes.WALL
+                        self.board[y][x] = TileTypes.WALL
                     elif c == "T":
-                        map.board[y][x] = TileTypes.set_data(TileTypes.TREE, 5)
+                        self.board[y][x] = TileTypes.set_data(TileTypes.TREE, 5)
                     elif c == "V":
-                        map.board[y][x] = TileTypes.WATER
+                        self.board[y][x] = TileTypes.WATER
                     elif c == "G":
-                        map.board[y][x] = TileTypes.QUAGMIRE
-                        map.goal_pos  = nmath.Float2(x,y)
+                        self.board[y][x] = TileTypes.QUAGMIRE
+                        self.goal_pos  = nmath.Float2(x,y)
                     elif c == "S":
-                        map.start_pos = nmath.Float2(x,y)
+                        self.start_pos = nmath.Float2(x,y)
                     elif c == "B":
-                        map.board[y][x] = TileTypes.MOUNTAIN
+                        self.board[y][x] = TileTypes.MOUNTAIN
                     elif c == "M":
-                        map.board[y][x] = TileTypes.GROUND
+                        self.board[y][x] = TileTypes.GROUND
                     elif not c == "\n":
                         assert False, "Unknown character in map file."
-        
-        return map
 
     def get(self, x,y):
         return self.board[y][x]
     
+    def set(self, x,y, t):
+        self.board[y][x] = t
+    
     def get_f2(self, pos: nmath.Float2):
         return self.board[int(pos.y)][int(pos.x)]
     
-    def create_geometry(self):
-        e = demo.SpawnEntity("StaticEnvironment/ground")
-        e.WorldTransform = nmath.Mat4.scaling(512,1,512) * nmath.Mat4.translation(0,0,0)
-        e = demo.SpawnEntity("StaticEnvironment/guy")
-        e.WorldTransform = nmath.Mat4.rotation_y(math.pi/2) * nmath.Mat4.translation(3,0,3)
+    def create_geometry(self, clouds: bool = False):
+        self.ground_plane = demo.SpawnEntity("StaticEnvironment/ground")
+        self.ground_plane.WorldTransform = nmath.Mat4.scaling(512,1,512) * nmath.Mat4.translation(0,0,0)
+        if not demo.IsValid(self.ground_plane):
+            print("begin not valid")
+                    
         for y in range(self.height):
             for x in range(self.width):
-                if self.get(x,y) == TileTypes.MOUNTAIN or self.get(x,y) == TileTypes.WALL:
-                    e = demo.SpawnEntity("StaticEnvironment/mountain")
-                    e.WorldTransform = nmath.Mat4.translation(x,-0.5,y)
-                elif TileTypes.type(self.get(x,y)) == TileTypes.TREE:
-                    e = demo.SpawnEntity("StaticEnvironment/tree")
-                    e.WorldTransform = nmath.Mat4.scaling(0.4,0.4,0.4) * nmath.Mat4.translation(x,0,y)
-                elif self.get(x,y) == TileTypes.WATER:
-                    e = demo.SpawnEntity("StaticEnvironment/water")
-                    e.WorldTransform = nmath.Mat4.rotation_y(-math.pi/2) * nmath.Mat4.translation(x,0.03,y)
-                elif self.get(x,y) == TileTypes.QUAGMIRE:
-                    e = demo.SpawnEntity("StaticEnvironment/quagmire")
-                    e.WorldTransform = nmath.Mat4.translation(x,0.03,y)
-                elif self.get(x,y) == TileTypes.GOAL:
-                    e = demo.SpawnEntity("StaticEnvironment/knob_plastic")
-                    e.WorldTransform = nmath.Mat4.translation(x,0.1,y)
-                elif self.get(x,y) == TileTypes.START:
-                    e = demo.SpawnEntity("StaticEnvironment/knob_reflective")
-                    e.WorldTransform = nmath.Mat4.translation(x,0.1,y)
+                if clouds:
+                    self.set(x,y, TileTypes.set_cloud(self.get(x,y)))
+                    e = demo.SpawnEntity("StaticEnvironment/cloud")
+                    e.WorldTransform = nmath.Mat4.translation(x,0.5,y)
+                    self.entities[x][y] = e
+                else:
+                    self.entities[x][y] = self.create_entity_for_tile(x,y)
+
+
+    def create_entity_for_tile(self, x, y):
+        e = None
+        if TileTypes.type(self.get(x,y)) == TileTypes.type(TileTypes.MOUNTAIN) or TileTypes.type(self.get(x,y)) == TileTypes.type(TileTypes.WALL):
+            e = demo.SpawnEntity("StaticEnvironment/mountain")
+            e.WorldTransform = nmath.Mat4.translation(x,-0.5,y)
+        elif TileTypes.type(self.get(x,y)) == TileTypes.TREE:
+            e = demo.SpawnEntity("StaticEnvironment/tree")
+            e.WorldTransform = nmath.Mat4.scaling(0.4,0.4,0.4) * nmath.Mat4.translation(x,0,y)
+        elif TileTypes.type(self.get(x,y)) == TileTypes.type(TileTypes.WATER):
+            e = demo.SpawnEntity("StaticEnvironment/water")
+            e.WorldTransform = nmath.Mat4.rotation_y(-math.pi/2) * nmath.Mat4.translation(x,0.03,y)
+        elif TileTypes.type(self.get(x,y)) == TileTypes.type(TileTypes.QUAGMIRE):
+            e = demo.SpawnEntity("StaticEnvironment/quagmire")
+            e.WorldTransform = nmath.Mat4.translation(x,0.03,y)
+        elif TileTypes.type(self.get(x,y)) == TileTypes.type(TileTypes.GOAL):
+            e = demo.SpawnEntity("StaticEnvironment/knob_plastic")
+            e.WorldTransform = nmath.Mat4.translation(x,0.1,y)
+        elif TileTypes.type(self.get(x,y)) == TileTypes.type(TileTypes.START):
+            e = demo.SpawnEntity("StaticEnvironment/knob_reflective")
+            e.WorldTransform = nmath.Mat4.translation(x,0.1,y)
+
+        return e
+
+
+    def uncloud(self, x: int, y: int):
+        if x < 0 or self.width <= x or y < 0 or self.height <= y:
+            return
+
+        if TileTypes.is_cloud(self.board[x][y]):
+            if self.entities[x][y]:
+                demo.Delete(self.entities[x][y])
+            self.entities[x][y] = self.create_entity_for_tile(x,y)
+            self.board[x][y] = TileTypes.unset_cloud(self.board[x][y])
+
 
     def get_neighbours(self, x,y):
         neighbours = []
@@ -153,6 +191,41 @@ class Map:
         
         if TileTypes.is_unwalkable(self.get(sx,y)):
             return False
-            
+
+        return True
+
+    def spawn_ironore(self, n_ironore):
+        while n_ironore > 0:
+            x = random.randint(0, self.width-1)
+            y = random.randint(0, self.height-1)
+
+            if TileTypes.is_unwalkable(self.get(x,y)):
+                continue
+
+            if item_manager.manager.is_there_items_at(x,y):
+                continue
+
+            item_manager.manager.add_item(x,y, item_manager.ItemType.IRON_ORE)
+            n_ironore -= 1
+
+    def chop_tree(self, x, y):
+        tree_tile = self.get(x, y)
+
+        if TileTypes.type(tree_tile) != TileTypes.TREE:
+            return False
+
+        n_trees = TileTypes.data(tree_tile)
+        n_trees -= 1
+        if n_trees <= 0:
+            self.set(x, y, TileTypes.GROUND)
+            if self.entities[x][y]:
+                demo.Delete(self.entities[x][y])
+                self.entities[x][y] = None
+        else:
+            self.set(x, y, TileTypes.set_data(tree_tile, n_trees))
+
+        return True
+
+map = Map()            
 
 

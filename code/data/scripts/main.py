@@ -1,4 +1,4 @@
-import button_input, map, path_manager
+import button_input, map, path_manager, agent, item_manager, worker
 import math
 import nmath
 
@@ -10,66 +10,41 @@ from breadth_first_search import *
 from a_star import *
 from wall_search import *
 
-N_TESTS = 100
-
-def test_all_algorithms_on_map(map_name):
-    m = map.Map.load_from_file(map_name)
-    path_m = path_manager.manager
-    path_m.set_map(m)
-    algorithms = [ DepthFirstSearch, BreadthFirstSearch, AStar, WallSearch ]
-    times = [0]*4
-
-    for _ in range(N_TESTS):
-        for i, algorithm in enumerate(algorithms):
-            path = path_m.create_path(algorithm(), m.start_pos, m.goal_pos)
-            times[i] += path_m.find_path(path)
-
-    with open("times.txt", "a") as f:
-        f.write("-" * 7 + " MAP: " + map_name + "-"*7 + "\n")
-        for i,algorithm in enumerate(algorithms):
-            name = algorithm.__repr__(None)
-            j = 40 - len(name)
-            f.write( name + " took " + " " * j + str(times[i]/N_TESTS) + " seconds.\n")
-
-
-def run_tests():
-    test_all_algorithms_on_map("maps/Map1.txt")
-    test_all_algorithms_on_map("maps/Map2.txt")
-    test_all_algorithms_on_map("maps/Map3.txt")
-    test_all_algorithms_on_map("maps/Map4.txt")
-    print("Tests written to times.txt")
-    path_manager.manager.set_map(m)
-
-
 
 time = 0
-time_speeds = [1,2,4,8,15,30,60]
-selected_time = 0
+time_speeds = [0.1, 0.25, 0.5, 1, 2, 4, 7, 10, 25, 50, 100, 150, 200]
+selected_time = 3
 
 pause_button = button_input.ButtonInput(demo.IsPdown)
 speed_up     = button_input.ButtonInput(demo.IsUpdown)
 speed_down   = button_input.ButtonInput(demo.IsDowndown)
+left_mouse   = button_input.ButtonInput(demo.IsLeftMouseDown)
+right_mouse  = button_input.ButtonInput(demo.IsRightMouseDown)
 
 paused = False
 
-m = map.Map.load_from_file("maps/lab3_map.txt")
+map.map.load_from_file("maps/lab3_map.txt")
 
-m.create_geometry()
+map.map.create_geometry(clouds = False)
 
-path_manager.manager.set_map(m)
+
+map.map.spawn_ironore(60)
+
+path_manager.manager.set_map(map.map)
 path = None
 found_path = True
 
+worker = worker.Worker(3,3)
 
 def run_path(algorithm):
     global path, found_path
-    path = path_manager.manager.create_path(algorithm, m.start_pos, m.goal_pos)
+    path = path_manager.manager.create_path(algorithm, map.map.start_pos, map.map.goal_pos)
     found_path = False
 
 # Runs once every frame
 def NebulaUpdate():
 
-    global time, paused, selected_time, found_path
+    global time, paused, selected_time, found_path, guy, worker
 
     if pause_button.pressed():
         paused = not paused
@@ -78,34 +53,58 @@ def NebulaUpdate():
         else:
             print("Unpaused")
 
-    if speed_down.pressed() and selected_time < len(time_speeds) -1:
+    if speed_up.pressed() and selected_time < len(time_speeds) -1:
         selected_time += 1
-        print("Time: 1 update per " + str(time_speeds[selected_time]) + " frames")
+        print("Time: " + str(time_speeds[selected_time]) + "x")
+        demo.SetTimeFactor(time_speeds[selected_time])
 
-    if speed_up.pressed() and selected_time > 0:
+    if speed_down.pressed() and selected_time > 0:
         selected_time -= 1
-        print("Time: 1 update per " + str(time_speeds[selected_time]) + " frames")
+        print("Time: " + str(time_speeds[selected_time]) + "x")
+        demo.SetTimeFactor(time_speeds[selected_time])
 
     if paused:
         return
 
-    if time <= 0:
+    worker.update()
 
-        if not found_path:
-            if path_manager.manager.step_path(path):
-                print("Done")
-                found_path = True
+    path_manager.manager.calc_paths(100)
 
-        time = time_speeds[selected_time]
-    time -= 1
+    if not demo.IsValid(map.map.ground_plane):
+        print("not valid", map.map.ground_plane)
+
+    if left_mouse.pressed():
+        p = demo.RayCastMousePos()
+        p.x = round(p.x)
+        p.y += 0.5
+        p.z = round(p.z)
+        #m.uncloud(round(p.x),round(p.z))
+        #agent.set_target_pos(p)
+        #agent.goto(round(p.x),round(p.z))
+        #item_manager.manager.add_item(round(p.x),round(p.z), item_manager.ItemType.LOG)
+        if map.TileTypes.type(map.map.get(round(p.x),round(p.z))) == map.TileTypes.TREE:
+            worker.add_chop_tree_goal( (round(p.x),round(p.z)), (3,3))
+
+    if right_mouse.pressed():
+        p = demo.RayCastMousePos()
+        #item_manager.manager.remove_item(round(p.x),round(p.z), item_manager.ItemType.LOG)
+
 
 # Runs one every frame when it's time to draw
 def NebulaDraw():
-    if path:
-        path.algorithm.visualize(path)
 
-def profile_astar():
-    tp = path_manager.manager.create_path(AStar(), m.start_pos, m.goal_pos);
-    path_manager.manager.find_path(tp)
+    p = demo.RayCastMousePos()
+    p.x = round(p.x)
+    p.y += 0.5
+    p.z = round(p.z)
 
-cProfile.run("profile_astar()")
+    item_manager.manager.draw_hover(round(p.x), round(p.z))
+
+    demo.DrawBox(p, 1, nmath.Vec4(0,1,1,1))
+
+    for p in path_manager.manager.current_paths:
+        p.algorithm.visualize(p)
+
+    worker.imguiDraw()
+
+

@@ -32,6 +32,8 @@ public:
     inline Game::Entity get_player() {return playerEntity;}
     inline void set_target_pos(Math::point pos) {target_pos = pos.vec;}
 
+    static Math::vec3 RayCastMousePos();
+
 private:
 	/// constructor
 	PlayerManager();
@@ -51,6 +53,8 @@ private:
     Demo::TopdownCamera tdc;
 
     Math::vec4 target_pos = {0,0,0,0};
-};
+
+    Math::vec3 ray_cast_mouse_pos = {0,0,0}; // only updated when mouse buttons is pressed
+};;
 
 } // namespace Demo
