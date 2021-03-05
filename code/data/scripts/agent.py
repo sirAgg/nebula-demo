@@ -26,6 +26,9 @@ class Agent:
         a.position = nmath.Point(self.position.x, self.position.y, self.position.z)
         self.entity.Agent = a
 
+    def get_pos(self):
+        return (round(self.position.x), round(self.position.z))
+
     def set_target_pos(self, pos):
         self.target_pos = nmath.Vec4(pos.x, pos.y, pos.z, 0)
 

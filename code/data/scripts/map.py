@@ -3,6 +3,7 @@ import numpy
 import demo, nmath
 import places, item_manager
 
+
 class TileTypes(enum.auto):
     WALKABLE = 0
     GROUND   = 0
@@ -49,7 +50,10 @@ class Map:
             self.height = h
 
             self.board = numpy.empty((h,w), dtype=numpy.uint16)
-            self.entities = [[None for y in range(h)] for x in range(w)]
+            self.entities    = [[None for y in range(h)] for x in range(w)]
+            self.meta_clouds = [[None for y in range(h//10)] for x in range(w//10)]
+
+            self.cloud_changes = {}
 
             for y, line in enumerate(lines):
                 for x, c in enumerate(line):
@@ -92,11 +96,18 @@ class Map:
             for x in range(self.width):
                 if clouds:
                     self.set(x,y, TileTypes.set_cloud(self.get(x,y)))
-                    e = demo.SpawnEntity("StaticEnvironment/cloud")
-                    e.WorldTransform = nmath.Mat4.translation(x,0.5,y)
-                    self.entities[x][y] = e
                 else:
                     self.entities[x][y] = self.create_entity_for_tile(x,y)
+
+        if clouds:
+            for y in range(self.height//10):
+                for x in range(self.width//10):
+                    self.set(x,y, TileTypes.set_cloud(self.get(x,y)))
+                    e = demo.SpawnEntity("StaticEnvironment/cloud")
+                    e.WorldTransform = nmath.Mat4.scaling(10,1,10) * nmath.Mat4.translation(x*10 + 4.5,0.5,y*10 + 4.5)
+                    self.meta_clouds[x][y] = e
+
+
 
 
     def create_entity_for_tile(self, x, y):
@@ -128,10 +139,49 @@ class Map:
             return
 
         if TileTypes.is_cloud(self.board[x][y]):
-            if self.entities[x][y]:
+
+            m_x = x//10
+            m_y = y//10
+            if self.meta_clouds[m_x][m_y]:
+                demo.Delete(self.meta_clouds[m_x][m_y])
+                self.meta_clouds[m_x][m_y] = None
+                print("remove meta cloud")
+                for _x in range(10):
+                    for _y in range(10):
+                        n_x = m_x*10+_x
+                        n_y = m_y*10+_y
+                        if n_x != x or n_y != y:
+                            self.cloud_changes[(n_x,n_y)] = self.cloud_changes.get((n_x,n_y), 0) + 1
+                
+                self.entities[x][y] = self.create_entity_for_tile(x,y)
+                self.board[x][y] = TileTypes.unset_cloud(self.board[x][y])
+
+
+            elif self.entities[x][y]:
+                self.cloud_changes[(x,y)] = self.cloud_changes.get((x,y), 0) - 1
+
+    def apply_cloud_changes(self):
+
+        for pos, change in self.cloud_changes.items():
+            x = pos[0]
+            y = pos[1]
+
+            if change < 0:
+                if self.entities[x][y] == None:
+                    continue
                 demo.Delete(self.entities[x][y])
-            self.entities[x][y] = self.create_entity_for_tile(x,y)
-            self.board[x][y] = TileTypes.unset_cloud(self.board[x][y])
+                self.entities[x][y] = self.create_entity_for_tile(x,y)
+                self.board[x][y] = TileTypes.unset_cloud(self.board[x][y])
+            elif change > 0:
+                e = demo.SpawnEntity("StaticEnvironment/cloud")
+                e.WorldTransform = nmath.Mat4.translation(x,0.5,y)
+                self.entities[x][y] = e
+
+        self.cloud_changes.clear()
+
+
+
+                
 
 
     def get_neighbours(self, x,y):

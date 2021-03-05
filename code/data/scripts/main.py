@@ -1,8 +1,9 @@
-import button_input, map, path_manager, agent, item_manager, worker
+import button_input, map, path_manager, agent, item_manager, worker, explorer
 import math
 import nmath
 
 import cProfile
+import pdb
 import pstats
 
 from depth_first_search  import *
@@ -25,8 +26,7 @@ paused = False
 
 map.map.load_from_file("maps/lab3_map.txt")
 
-map.map.create_geometry(clouds = False)
-
+map.map.create_geometry(clouds = True)
 
 map.map.spawn_ironore(60)
 
@@ -36,6 +36,11 @@ found_path = True
 
 worker = worker.Worker(3,3)
 
+worker = explorer.Explorer.upgrade_worker(worker)
+
+worker.add_wander_direction_goal((1,1))
+
+map.map.uncloud(3,3)
 def run_path(algorithm):
     global path, found_path
     path = path_manager.manager.create_path(algorithm, map.map.start_pos, map.map.goal_pos)
@@ -70,9 +75,6 @@ def NebulaUpdate():
 
     path_manager.manager.calc_paths(100)
 
-    if not demo.IsValid(map.map.ground_plane):
-        print("not valid", map.map.ground_plane)
-
     if left_mouse.pressed():
         p = demo.RayCastMousePos()
         p.x = round(p.x)
@@ -88,6 +90,9 @@ def NebulaUpdate():
     if right_mouse.pressed():
         p = demo.RayCastMousePos()
         #item_manager.manager.remove_item(round(p.x),round(p.z), item_manager.ItemType.LOG)
+        map.map.uncloud(round(p.x),round(p.z))
+
+    map.map.apply_cloud_changes()
 
 
 # Runs one every frame when it's time to draw

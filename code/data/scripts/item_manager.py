@@ -96,7 +96,27 @@ class ItemManager:
 
         return True
 
-    def get_n_items(self, item_type: ItemType):
+    def get_n_items(self, x, y, item_type: ItemType):
+        item_stack = self.item_map.get((x,y))
+        if item_stack == None:
+            return 0
+
+
+        if item_type == ItemType.LOG:
+            return item_type.log
+
+        elif item_type == ItemType.IRON_ORE:
+            return item_type.ironores
+
+        elif item_type == ItemType.IRON_INGOT:
+            return item_type.ironingots
+
+        elif item_type == ItemType.SWORD:
+            return item_type.swords
+
+        return 0
+
+    def get_global_n_items(self, item_type: ItemType):
         
         if item_type == ItemType.LOG:
             return self.global_logs

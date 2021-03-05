@@ -21,3 +21,4 @@ files:
     - wall_search.py
     - item_manager.py
     - worker.py
+    - explorer.py

@@ -182,6 +182,8 @@ GameStateManager::OnActivate()
         //auto duration = std::chrono::duration_cast<std::chrono::microseconds>(stop - start);
         //IO::Console::Instance()->Print("drawing a lot of dots took %f microseconds", duration.count());
     });
+
+    //GraphicsFeature::GraphicsFeatureUnit::Instance()->SetGraphicsDebugging(true);
 }
 
 //------------------------------------------------------------------------------

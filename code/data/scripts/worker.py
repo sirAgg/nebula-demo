@@ -39,7 +39,10 @@ class WorkerChoppingState(WorkerState):
         if (end_time - self.start_time) > 30.0:
             p = worker.agent.position
             if map.map.chop_tree(round(p.x), round(p.z)):
-                item_manager.manager.add_item(round(p.x), round(p.z), item_manager.ItemType.LOG)
+                if worker.item == None:
+                    worker.item = item_manager.ItemType.LOG
+                else: # if the worker already is carrying something drop the log on the ground
+                    item_manager.manager.add_item(round(p.x), round(p.z), item_manager.ItemType.LOG)
 
             worker.execute_next_goal()
 
@@ -47,8 +50,15 @@ class WorkerPickUpState(WorkerState):
     def execute(self, worker):
         item_type = worker.get_current_goal()[1]
         p = worker.agent.position
-        if item_manager.manager.remove_item(round(p.x), round(p.z), item_type):
-            worker.item = item_type
+
+        if worker.item == None:
+            if item_manager.manager.remove_item(round(p.x), round(p.z), item_type):
+                worker.item = item_type
+        else:
+            if item_manager.manager.get_n_items(round(p.x), round(p.z), worker.item) > 0:
+                item_manager.manager.add_item(round(p.x), round(p.z), worker.item)
+                item_manager.manager.remove_item(round(p.x), round(p.z), item_type)
+                worker.item = item_type
 
         worker.execute_next_goal()
 
@@ -110,9 +120,8 @@ class Worker:
         self.execute_goal()
 
     def add_chop_tree_goal(self, tree_pos, drop_of_pos):
-        self.goals.append((WorkerGoals.DROP_ITEM    , ))
+        self.goals.append((WorkerGoals.DROP_ITEM     , ))
         self.goals.append((WorkerGoals.GOTO_LOCATION , drop_of_pos))
-        self.goals.append((WorkerGoals.PICK_UP_ITEM  , item_manager.ItemType.LOG))
         self.goals.append((WorkerGoals.CHOP_DOWN_TREE, ))
         self.goals.append((WorkerGoals.GOTO_LOCATION , tree_pos))
         self.execute_goal()
