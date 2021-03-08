@@ -82,7 +82,7 @@ class Worker:
     def __init__(self,x,y):
         self.agent = agent.Agent()
         self.agent.set_pos( nmath.Point(x,0,y) )
-        self.agent.set_target_pos( nmath.Point(x,0,y) )
+        self.agent.set_target_pos( x, y )
         self.state = WorkerGotoState()
         self.goals = [(WorkerGoals.DO_NOTHING,)]
         self.item  = None

@@ -1,7 +1,7 @@
 " compile and run commands
 "set makeprg="ninja -C build \| ffnffp.exe"
-nnoremap <f3> :wa<cr>:silent! cexpr system(".\\fips build")<cr>:cw<cr>
-nnoremap <S-f3> :wa<cr>:!ninja -C build\ -t clean<cr>:silent! cexpr system(".\fips clean && .\fips build")<cr>:cw<cr>
+nnoremap <f3> :wa<cr>:silent! cexpr system(".\\fips build")<cr>:copen<cr>G
+nnoremap <S-f3> :wa<cr>:!ninja -C build\ -t clean<cr>:silent! cexpr system(".\fips clean && .\fips build")<cr>:copen<cr>G
 nnoremap <f4> :call RunProgram(".\\fips run nebula-demo")<cr>
 
 nnoremap <f8> :!explorer .<cr><cr>

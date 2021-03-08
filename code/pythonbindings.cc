@@ -22,6 +22,7 @@
 #include "input/keyboard.h"
 #include "managers/playermanager.h"
 #include "graphicsfeature/graphicsfeatureunit.h"
+#include "ids/idgenerationpool.h"
 
 #define defPropertyAccessor(type, name) def_property(#name,\
         [](Game::Entity& e){\
@@ -126,7 +127,9 @@ PYBIND11_EMBEDDED_MODULE(demo, m)
             Game::EntityCreateInfo info;
             info.immediate = true;
             info.templateId = Game::GetTemplateId(atom);
-            return Game::CreateEntity(info);
+            auto e = Game::CreateEntity(info);
+            n_printf("created entity %d %d\n", Ids::Generation(e.id), Ids::Index(e.id));
+            return e;
             });
 
     m.def("GetPlayer", [](){return Demo::PlayerManager::Instance()->get_player();});

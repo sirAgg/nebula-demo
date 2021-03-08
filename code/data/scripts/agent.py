@@ -12,6 +12,8 @@ class Agent:
     max_turn_rate = 0.05
     is_walking = False
 
+    target_callback = lambda : None
+
     def __init__(self):
         self.entity = demo.SpawnEntity("AgentEntity/agent")
         self.entity.WorldTransform = nmath.Mat4.scaling(0.8,0.8,0.8) * nmath.Mat4.rotation_y(math.pi/2)
@@ -29,8 +31,18 @@ class Agent:
     def get_pos(self):
         return (round(self.position.x), round(self.position.z))
 
-    def set_target_pos(self, pos):
-        self.target_pos = nmath.Vec4(pos.x, pos.y, pos.z, 0)
+    def set_target_pos(self, x,y):
+        if(map.TileTypes.is_unwalkable(map.map.get(int(x), int(y)))):
+            return False
+
+        self.target_pos = nmath.Vec4(x, 0, y, 0)
+        return True
+
+    def set_target_callback(self, func):
+        self.target_callback = func
+
+    def reset_target_callback(self):
+        self.target_callback = lambda : None 
 
     def is_at_target(self):
         return self.position == self.target_pos
@@ -49,6 +61,7 @@ class Agent:
 
                 else:
                     self.set_pos(self.target_pos)
+                    self.target_callback()
             else:
 
                 

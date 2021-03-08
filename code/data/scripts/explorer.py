@@ -1,14 +1,15 @@
 import demo, imgui, nmath
 import agent, map
-import enum
+import enum, random
 
 
-neighbours = [(1,1),(-1,1),(1,-1),(-1,-1),(1,0),(0,1),(-1,0),(0,-1)]
+neighbours = [(1,1),(1,0),(1,-1),(0,-1),(-1,-1),(-1,0),(-1,1),(0,1)]
 
 class ExplorerGoals(enum.auto):
     UPGRADE             = 0,
     WANDER_TO           = 1,
     WANDER_IN_DIRECTION = 2
+
 
 class ExplorerState:
     def enter(self, explorer):
@@ -17,6 +18,7 @@ class ExplorerState:
         pass
     def exit(self, explorer):
         pass
+
 
 class ExplorerUpgradeState(ExplorerState):
     def enter(self, explorer):
@@ -29,14 +31,40 @@ class ExplorerUpgradeState(ExplorerState):
             explorer.getting_upgraded = False
             explorer.execute_goal()
 
+
 class ExplorerWanderToState(ExplorerState):
     pass
 
+
 class ExplorerWanderDirectionState(ExplorerState):
-    def execute(self, explorer):
-        direction = explorer.get_current_goal()[1]
+    def enter(self, explorer):
+        explorer.agent.set_target_callback( lambda : self.new_target(explorer) )
+        self.direction = explorer.get_current_goal()[1]
+        self.new_target(explorer)
+
+    def new_target(self, explorer):
         pos = explorer.agent.get_pos()
-        explorer.agent.set_target_pos(nmath.Point(pos[0] + direction[0], 0, pos[1] + direction[1]))
+        idx = neighbours.index(self.direction)
+
+        idx += random.randint(-1,1)
+
+        di = neighbours[idx%8]
+
+        increase = 2
+
+        while not explorer.agent.set_target_pos(pos[0] + di[0], pos[1] + di[1]):
+            idx += increase
+            increase += 2
+            di = neighbours[idx%8]
+
+        self.direction = di
+
+
+
+
+    def execute(self, explorer):
+        pass
+
 
 class Explorer:
     def upgrade_worker(worker):
@@ -96,7 +124,6 @@ class Explorer:
 
     def clear_goals(self):
         self.goals = [(WorkerGoals.DO_NOTHING,)]
-
 
     def imguiDraw(self):
         members = [(attr, getattr(self,attr)) for attr in dir(self) if not callable(getattr(self,attr)) and not attr.startswith("__")]

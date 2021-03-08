@@ -11,6 +11,7 @@
 #include "managers/movementmanager.h"
 #include "managers/playermanager.h"
 #include "managers/agnetmanager.h"
+#include "scripting/python/pythonserver.h"
 
 namespace Demo
 {
@@ -47,6 +48,8 @@ DemoGameFeatureUnit::OnActivate()
     this->AttachManager(Demo::MovementManager::Create());
     this->AttachManager(Demo::PlayerManager::Create());
     this->AttachManager(Demo::AgentManager::Create());
+        
+    //Scripting::ScriptServer::Instance()->EvalFile("scripts/main.py");
 }
 
 //------------------------------------------------------------------------------
