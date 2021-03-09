@@ -1,7 +1,8 @@
-import state, message, places, path_manager, map
+import state, message, places, path_manager, map, wall_search
 import demo, nmath, imgui
 import math
 
+toggle_path_button = False
 
 class Agent:
     position   = nmath.Vec4(0,0.5,0,0)
@@ -64,7 +65,6 @@ class Agent:
                     self.target_callback()
             else:
 
-                
                 ground_speed_modifier = 1
                 tiletype = map.TileTypes.type(path_manager.manager.map.get(int(round(self.position.x)), int(round(self.position.z)))) # todo fix map access
 
@@ -84,26 +84,42 @@ class Agent:
                 self.set_pos(self.position + self.velocity)
 
 
-    def goto(self, goal_x, goal_y):
+    def goto(self, goal_x, goal_y, use_wall_search=False):
         start = nmath.Float2(round(self.position.x), round(self.position.z))
         goal  = nmath.Float2(goal_x, goal_y)
         self.target_pos = nmath.Vec4(goal_x, 0, goal_y, 0)
 
-        self.path = path_manager.manager.create_path(start, goal, done_callback = self.begin_walking_path)
+        if use_wall_search:
+            self.path = path_manager.manager.create_path(start, goal, done_callback = self.begin_walking_path, algorithm=wall_search.WallSearch)
+        else:
+            self.path = path_manager.manager.create_path(start, goal, done_callback = self.begin_walking_path)
+
 
     def begin_walking_path(self):
         pos = self.path.points.pop(0)
         self.target_pos = nmath.Vec4(pos.x, 0, pos.y, 0)
+        print("Begin walking path")
 
 
     def imguiDraw(self):
-        members = [(attr, getattr(self,attr)) for attr in dir(self) if not callable(getattr(self,attr)) and not attr.startswith("__")]
+        global toggle_path_button
+        members = [(attr, getattr(self,attr)) for attr in dir(self) if not callable(getattr(self,attr)) and not attr.startswith("__") and not attr == "path"]
         imgui.Begin("Agent ", None, 0)
 
         try:
 
             for member, value in members:
                 imgui.Text(member + ": " + str(value))
+
+            if imgui.Button("path"):
+                toggle_path_button = not toggle_path_button
+
+            if toggle_path_button:
+                members = [(attr, getattr(self.path,attr)) for attr in dir(self.path) if not callable(getattr(self.path,attr)) and not attr.startswith("__")]
+                for member, value in members:
+                    imgui.Text("path: " + member + ": " + str(value))
+                
+
 
             imgui.End()
 

@@ -1,4 +1,4 @@
-import button_input, map, path_manager, agent, item_manager, worker, explorer
+import button_input, map, path_manager, agent, item_manager, worker, explorer, message, message
 import math
 import nmath
 
@@ -26,7 +26,7 @@ paused = False
 
 map.map.load_from_file("maps/lab3_map.txt")
 
-map.map.create_geometry(clouds = True)
+map.map.create_geometry(clouds = False)
 
 map.map.spawn_ironore(60)
 
@@ -46,10 +46,27 @@ def run_path(algorithm):
     path = path_manager.manager.create_path(algorithm, map.map.start_pos, map.map.goal_pos)
     found_path = False
 
+px = 0
+py = 0
+
+first = True
+
 # Runs once every frame
 def NebulaUpdate():
 
     global time, paused, selected_time, found_path, guy, worker
+#    global px, py, first
+#    for i in range (0, 2):
+#        map.map.uncloud(px, py)
+#        px += 1
+#        px = px % 100
+#        if px == 0:
+#            py += 1
+#
+    #if first:
+    #    map.map.uncloud(px, py)
+    #    first = False
+
 
     if pause_button.pressed():
         paused = not paused
@@ -73,7 +90,9 @@ def NebulaUpdate():
 
     worker.update()
 
-    path_manager.manager.calc_paths(100)
+    path_manager.manager.calc_paths(10)
+
+    agent_manager.manager.update()
 
     if left_mouse.pressed():
         p = demo.RayCastMousePos()
@@ -82,16 +101,18 @@ def NebulaUpdate():
         p.z = round(p.z)
         #m.uncloud(round(p.x),round(p.z))
         #agent.set_target_pos(p)
-        #agent.goto(round(p.x),round(p.z))
+        #worker.agent.goto(round(p.x),round(p.z))
+        worker.add_wander_to_goal((round(p.x),round(p.z)))
         #item_manager.manager.add_item(round(p.x),round(p.z), item_manager.ItemType.LOG)
-        if map.TileTypes.type(map.map.get(round(p.x),round(p.z))) == map.TileTypes.TREE:
-            worker.add_chop_tree_goal( (round(p.x),round(p.z)), (3,3))
+        #if map.TileTypes.type(map.map.get(round(p.x),round(p.z))) == map.TileTypes.TREE:
+        #    worker.add_chop_tree_goal( (round(p.x),round(p.z)), (3,3))
 
     if right_mouse.pressed():
         p = demo.RayCastMousePos()
         #item_manager.manager.remove_item(round(p.x),round(p.z), item_manager.ItemType.LOG)
         map.map.uncloud(round(p.x),round(p.z))
 
+    message.handler.distribute_messages()
     map.map.apply_cloud_changes()
 
 

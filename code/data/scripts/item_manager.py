@@ -147,6 +147,8 @@ class ItemManager:
     def draw_hover(self, x, y):
         imgui.Begin("ItemOnGround", None, 0)
         try:
+            imgui.Text("Pos: " + str(x) + ":" + str(y))
+
             members = [(attr, getattr(self,attr)) for attr in dir(self) if not callable(getattr(self,attr)) and not attr.startswith("__") and not attr == "item_map"]
             for member, value in members:
                 imgui.Text(member + ": " + str(value))

@@ -136,7 +136,7 @@ class Map:
 
     def uncloud(self, x: int, y: int):
         if x < 0 or self.width <= x or y < 0 or self.height <= y:
-            return
+            return False
 
         if TileTypes.is_cloud(self.board[x][y]):
 
@@ -150,15 +150,17 @@ class Map:
                     for _y in range(10):
                         n_x = m_x*10+_x
                         n_y = m_y*10+_y
-                        if n_x != x or n_y != y:
-                            self.cloud_changes[(n_x,n_y)] = self.cloud_changes.get((n_x,n_y), 0) + 1
+                        self.cloud_changes[(n_x,n_y)] = self.cloud_changes.get((n_x,n_y), 0) + 1
                 
                 self.entities[x][y] = self.create_entity_for_tile(x,y)
                 self.board[x][y] = TileTypes.unset_cloud(self.board[x][y])
 
 
-            elif self.entities[x][y]:
-                self.cloud_changes[(x,y)] = self.cloud_changes.get((x,y), 0) - 1
+            self.cloud_changes[(x,y)] = self.cloud_changes.get((x,y), 0) - 1
+
+            return True
+        return False
+
 
     def apply_cloud_changes(self):
 
@@ -166,10 +168,10 @@ class Map:
             x = pos[0]
             y = pos[1]
 
-            if change < 0:
-                if self.entities[x][y] == None:
-                    continue
-                demo.Delete(self.entities[x][y])
+            if change <= 0:
+                if self.entities[x][y] != None:
+                    demo.Delete(self.entities[x][y])
+
                 self.entities[x][y] = self.create_entity_for_tile(x,y)
                 self.board[x][y] = TileTypes.unset_cloud(self.board[x][y])
             elif change > 0:
@@ -178,9 +180,6 @@ class Map:
                 self.entities[x][y] = e
 
         self.cloud_changes.clear()
-
-
-
                 
 
 

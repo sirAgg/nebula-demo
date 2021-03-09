@@ -1,18 +1,27 @@
 import agent_manager
+import enum
 
 MSG_BROADCAST = 0
 MSG_SINGLE_AGENT = 1
+
+class MsgContent(enum.Enum):
+    FOUND_TREE     = 1
+    FOUND_IRON_ORE = 2
+    FOUND_ENEM     = 3
+    IS_FREE        = 4
+
 class Message:
     type = 0
 
     def __repr__(self):
         return "{" + str(self.sender) + ", " + self.text +"}"
 
-def broadcast_msg(sender: int, text: str):
+def broadcast_msg(sender: int, content: MsgContent, pos):
     msg = Message()
     msg.type = MSG_BROADCAST
     msg.sender = sender
-    msg.text = text
+    msg.content = content
+    msg.pos = pos
 
     handler.send_msg(msg)
 
@@ -38,7 +47,7 @@ class MessageHandler:
 
             for msg in q:
                 if msg.type == MSG_BROADCAST:
-                    print("[From " + str(msg.sender) + " to ALL]: " + msg.text)
+                    print("[From " + str(msg.sender) + " to ALL]: " + str(msg.content) + " at " + str(msg.pos))
                     for a in agent_manager.manager.get_all_agents():
                         if (a.a_id != msg.sender):
                             a.receive_msg(msg)

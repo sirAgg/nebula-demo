@@ -1,5 +1,5 @@
 import demo, imgui, nmath
-import agent, map
+import agent, map, message
 import enum, random
 
 
@@ -33,7 +33,18 @@ class ExplorerUpgradeState(ExplorerState):
 
 
 class ExplorerWanderToState(ExplorerState):
-    pass
+    def enter(self, explorer):
+        explorer.agent.set_target_callback( lambda : self.new_target(explorer) )
+        target_pos = explorer.get_current_goal()[1]
+        explorer.agent.goto(target_pos[0], target_pos[1], use_wall_search=True)
+
+
+    def new_target(self, explorer):
+        print("here")
+        explorer.execute_next_goal()
+
+    def exit(self, explorer):
+        explorer.agent.reset_target_callback()
 
 
 class ExplorerWanderDirectionState(ExplorerState):
@@ -59,11 +70,11 @@ class ExplorerWanderDirectionState(ExplorerState):
 
         self.direction = di
 
-
-
-
     def execute(self, explorer):
         pass
+    
+    def exit(self, explorer):
+        explorer.agent.reset_target_callback()
 
 
 class Explorer:
@@ -79,14 +90,20 @@ class Explorer:
 
 
     def update(self):
-        self.state.execute(self)
         self.agent.update()
+        self.state.execute(self)
 
         pos = self.agent.get_pos()
 
         if not self.getting_upgraded:
             for n in neighbours:
-                map.map.uncloud(pos[0]+n[0], pos[1]+n[1])
+                p = (pos[0]+n[0], pos[1]+n[1])
+                if map.map.uncloud(p[0], p[1]):
+                    tile = map.map.get(p[0], p[1])
+                    if map.TileTypes.type(tile) == map.TileTypes.type(map.TileTypes.TREE):
+                        print("Found tree")
+                        message.broadcast_msg(0, message.MsgContent.FOUND_TREE, p)
+
 
     def set_state(self, new_state):
         self.state.exit(self)
@@ -133,6 +150,11 @@ class Explorer:
 
             for member, value in members:
                 imgui.Text(member + ": " + str(value))
+        
+            members = [(attr, getattr(self.state,attr)) for attr in dir(self.state) if not callable(getattr(self.state,attr)) and not attr.startswith("__")]
+
+            for member, value in members:
+                imgui.Text("state : " + member + ": " + str(value))
 
             imgui.End()
 

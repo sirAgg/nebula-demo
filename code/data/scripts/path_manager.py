@@ -16,9 +16,9 @@ class PathManager:
         self.current_paths = []
 
         
-    def create_path(self, start_pos: nmath.Float2, goal_pos: nmath.Float2, done_callback):
+    def create_path(self, start_pos: nmath.Float2, goal_pos: nmath.Float2, done_callback, algorithm=a_star.AStar):
         path = Path(start_pos, goal_pos)
-        path.algorithm = a_star.AStar()
+        path.algorithm = algorithm()
         path.algorithm.start(path, self.map)
         path.done_callback = done_callback
         self.current_paths.append(path)

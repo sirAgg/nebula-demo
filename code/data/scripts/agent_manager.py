@@ -1,11 +1,25 @@
 import demo, nmath
-import agent, button_input
+import agent, button_input, map
+import random
 
 class AgentManager:
     def __init__(self):
         self.agents = []
         self.tab_input = button_input.ButtonInput(demo.IsTabDown)
         self.selected_agent = 0
+
+    def spawn_workers(self, n_workers):
+        w = map.map.width
+        h = map.map.height
+
+        while(True)
+            x = random.randint(2,w-3)
+            y = random.randint(2,h-3)
+            tile = map.map.get(x,y)
+            if map.TileTypes.is_unwalkable(tile):
+                continue
+
+            break
 
     def add_agent(self, agent):
         self.agents.append(agent)
