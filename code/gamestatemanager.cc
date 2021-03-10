@@ -183,7 +183,7 @@ GameStateManager::OnActivate()
         //IO::Console::Instance()->Print("drawing a lot of dots took %f microseconds", duration.count());
     });
 
-    GraphicsFeature::GraphicsFeatureUnit::Instance()->SetGraphicsDebugging(true);
+    //GraphicsFeature::GraphicsFeatureUnit::Instance()->SetGraphicsDebugging(true);
 }
 
 //------------------------------------------------------------------------------

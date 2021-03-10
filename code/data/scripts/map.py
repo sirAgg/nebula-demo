@@ -16,8 +16,11 @@ class TileTypes(enum.auto):
     START    = 0b0000000001110000
 
 
-    def is_unwalkable(t):
+    def is_obstructed(t):
         return t & 0b1
+    
+    def is_unwalkable(t):
+        return (t & 0b11) > 0
 
     def type(t):
         return t & 0b0000000011110000
@@ -248,7 +251,7 @@ class Map:
             x = random.randint(0, self.width-1)
             y = random.randint(0, self.height-1)
 
-            if TileTypes.is_unwalkable(self.get(x,y)):
+            if TileTypes.is_obstructed(self.get(x,y)):
                 continue
 
             if item_manager.manager.is_there_items_at(x,y):

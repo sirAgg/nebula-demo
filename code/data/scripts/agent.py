@@ -15,12 +15,17 @@ class Agent:
 
     target_callback = lambda : None
 
-    def __init__(self):
+    def __init__(self, x, y):
         self.entity = demo.SpawnEntity("AgentEntity/agent")
-        self.entity.WorldTransform = nmath.Mat4.scaling(0.8,0.8,0.8) * nmath.Mat4.rotation_y(math.pi/2)
         a = self.entity.Agent
-        a.position = nmath.Point(1,0,1)
+        a.position = nmath.Point(x,0,y)
         self.entity.Agent = a
+
+        self.position   = nmath.Vec4(x,0.5,y-0.1,0)
+        self.target_pos = nmath.Vec4(x,0,y,0)
+        self.reset_target_callback()
+        
+        #self.entity.WorldTransform = nmath.Mat4.scaling(0.8,0.8,0.8) * nmath.Mat4.rotation_y(math.pi/2) * nmath.Mat4.look_at_rh(nmath.Point(0,0,0), nmath.Point(x,0,y+1), nmath.Vector(0,1,0)) * nmath.Mat4.translation(self.position.x,self.position.y,self.position.z)
 
     def set_pos(self, pos: nmath.Point):
         self.position = nmath.Vec4(pos.x, pos.y, pos.z, 0)
@@ -77,9 +82,10 @@ class Agent:
                 v =  (desired_vel - self.velocity)
                 self.velocity = self.velocity + v
 
-                vp = nmath.Point(self.velocity.x, self.velocity.y, self.velocity.z)
+                di = nmath.Vec4.normalize(self.velocity)
+                vp = nmath.Point(di.x, self.position.y, di.z)
 
-                self.entity.WorldTransform = nmath.Mat4.scaling(0.8,0.8,0.8) * nmath.Mat4.rotation_y(-math.pi/2) * nmath.Mat4.look_at_rh(nmath.Point(0,0,0), vp, nmath.Vector(0,1,0)) * nmath.Mat4.translation(self.position.x,self.position.y,self.position.z)
+                self.entity.WorldTransform = nmath.Mat4.scaling(0.8,0.8,0.8) * nmath.Mat4.rotation_y(math.pi/2) * nmath.Mat4.look_at_rh(nmath.Point(0,0,0), vp, nmath.Vector(0,1,0)) * nmath.Mat4.translation(self.position.x,self.position.y,self.position.z)
                 
                 self.set_pos(self.position + self.velocity)
 
@@ -88,6 +94,7 @@ class Agent:
         start = nmath.Float2(round(self.position.x), round(self.position.z))
         goal  = nmath.Float2(goal_x, goal_y)
         self.target_pos = nmath.Vec4(goal_x, 0, goal_y, 0)
+
 
         if use_wall_search:
             self.path = path_manager.manager.create_path(start, goal, done_callback = self.begin_walking_path, algorithm=wall_search.WallSearch)

@@ -40,7 +40,6 @@ class ExplorerWanderToState(ExplorerState):
 
 
     def new_target(self, explorer):
-        print("here")
         explorer.execute_next_goal()
 
     def exit(self, explorer):
@@ -58,15 +57,21 @@ class ExplorerWanderDirectionState(ExplorerState):
         idx = neighbours.index(self.direction)
 
         idx += random.randint(-1,1)
+        print("idx and random: ", idx)
 
         di = neighbours[idx%8]
 
-        increase = 2
+        increase = 0
 
         while not explorer.agent.set_target_pos(pos[0] + di[0], pos[1] + di[1]):
-            idx += increase
-            increase += 2
+            print( idx )
+            print( di )
+            idx += 1
+            increase += 1
             di = neighbours[idx%8]
+            if increase > 8:
+                print("break here")
+                break
 
         self.direction = di
 
@@ -90,9 +95,6 @@ class Explorer:
 
 
     def update(self):
-        self.agent.update()
-        self.state.execute(self)
-
         pos = self.agent.get_pos()
 
         if not self.getting_upgraded:
@@ -103,11 +105,15 @@ class Explorer:
                     if map.TileTypes.type(tile) == map.TileTypes.type(map.TileTypes.TREE):
                         print("Found tree")
                         message.broadcast_msg(0, message.MsgContent.FOUND_TREE, p)
+        
+        self.agent.update()
+        self.state.execute(self)
 
 
     def set_state(self, new_state):
         self.state.exit(self)
         self.state = new_state
+        print(self.state)
         self.state.enter(self)
 
     def get_current_goal(self):
@@ -128,6 +134,7 @@ class Explorer:
     def execute_next_goal(self):
         if self.getting_upgraded:
             return
+
         self.goals.pop()
         self.execute_goal()
 
